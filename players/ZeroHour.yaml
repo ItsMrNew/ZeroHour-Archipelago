@@ -1,0 +1,74 @@
+name: ZeroHour
+game: "Command & Conquer: Generals - Zero Hour"
+description: "Zero Hour: 30 checks, mission sets, all 12 builders and all three permanent abilities."
+"Command & Conquer: Generals - Zero Hour":
+  # Builders and abilities are enabled by default; progressive powers are opt-in.
+  general_builder_unlocks: true
+  reveal_minimap: true
+  carpet_bomb: true
+  patriot_airdrop: true
+  emergency_repair: true
+  # Optional: points and rank follow received items instead of combat XP.
+  progressive_generals_powers: false
+  # 18 covers the largest stock menu; up to 28 allowed.
+  generals_point_items: 18
+  progression_balancing: 0
+  accessibility: full
+  # Checks per completed mission (1-10) and additional checks per completed set (0-10).
+  mission_completion_checks: 1
+  set_completion_checks: 5
+  usa_campaign: true
+  china_campaign: true
+  gla_campaign: true
+  # Removes USA 3 and GLA 4 from checks only.
+  disable_unit_only_missions: false
+  # Seed selects this many distinct playable-general campaigns (0-9).
+  generals_challenge_campaigns: 0
+  # Send failures and restart active missions when linked players die.
+  death_link: false
+
+  # Leave empty for random sets, or choose labels such as [USA, GLA Stealth].
+  starting_mission_sets: []
+  starting_set_count: 1
+
+  # Relative weights for all remaining non-trap slots (0 excludes an item).
+  # Defaults: Supply Drops and Reinforcements equally likely; other items excluded.
+  # Traps enabled at 100% leave no weighted helpful items.
+  mission_report_weight: 0
+  # One-time $5,000; no increase to future starting cash.
+  supply_drop_weight: 50
+  # Three CIA Agents and a Heroic Humvee with five Heroic Missile Defenders.
+  reinforcements_weight: 50
+  # Fixed count, 0-10: $5,000 now and at every fresh mission start.
+  # Waits for player control; saved games do not grant another starting bonus.
+  progressive_starting_cash: 0
+
+  # When enabled: 50% traps, 50% weighted useful filler after fixed items.
+  # Traps round down; an odd remaining slot goes to filler. Weight 0 excludes a trap.
+  traps_enabled: false
+  trap_percentage: 50
+  power_outage_weight: 50
+  cash_theft_weight: 50
+  production_shutdown_weight: 50
+  sell_random_building_weight: 50
+  # normal_refund or no_refund (immediate removal, no cash returned).
+  sell_building_refund: normal_refund
+
+
+  # Victory: all_sets, set_count, or final_mission (last battle of goal_final_set).
+  victory_goal: all_sets
+  # For set_count: goal_set_count: 1
+  # For final_mission: goal_final_set: usa
+  # Trap strength: simulation seconds (5-180); Cash Theft 1-100%, no cap.
+  power_outage_seconds: 30
+  production_shutdown_seconds: 20
+  cash_theft_percent: 25
+  # Permanent AP ability cooldowns, 25-300% of normal.
+  ability_cooldown_percent: 100
+  # Precollected unlocks must also be enabled above.
+  starting_builders: []
+  starting_abilities: []
+  starting_generals_points: 0
+  # Incoming DeathLink immunity after reset, 0-300 seconds of player control.
+  death_link_grace_enabled: false
+  death_link_grace_seconds: 30

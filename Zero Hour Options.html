@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Zero Hour - YAML Creator</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,sans-serif;background:#101719;color:#edf2ec}*{box-sizing:border-box}body{max-width:1080px;margin:auto;padding:44px 24px}h1{font-size:36px;margin:8px 0}h2{font-size:19px;margin:0 0 18px}p{color:#aebcb9;line-height:1.55}.eyebrow{color:#e3bb63;font-size:12px;letter-spacing:2px;font-weight:700}.layout{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:32px}.panel{border:1px solid #344442;background:#182321;padding:26px;border-radius:14px}.row{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:15px 0;border-bottom:1px solid #344442}.row:last-child{border:0}.row small{display:block;color:#aebcb9;margin-top:5px;max-width:330px;line-height:1.4}input[type=checkbox]{width:23px;height:23px;accent-color:#e3bb63;flex-shrink:0}input[type=text]{width:100%;background:#101719;border:1px solid #60736f;border-radius:6px;padding:12px;color:inherit;margin:8px 0 22px;font:inherit}select{font:inherit;width:100%;padding:10px;margin-top:8px;background:#101719;color:inherit;border:1px solid #60736f;border-radius:6px}input[type=range]{width:100%;accent-color:#e3bb63;margin:18px 0}output{font-size:30px;color:#e3bb63;font-weight:700}pre{background:#101719;padding:18px;border-radius:8px;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6;font-size:13px;color:#d2dfd6}button{background:#e3bb63;color:#171c19;border:0;border-radius:7px;padding:14px 20px;font:inherit;font-weight:700;cursor:pointer;width:100%;margin-top:12px}button:disabled{opacity:.4;cursor:not-allowed}#summary{color:#e3bb63;font-weight:600}#error{color:#ffb2a3}footer{margin-top:24px;color:#aebcb9;font-size:13px;line-height:1.6}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}:focus-visible{outline:3px solid #e3bb63;outline-offset:4px}@media(max-width:760px){.layout{grid-template-columns:1fr}body{padding:24px 16px}h1{font-size:29px}}
+.check-preview{position:sticky;top:12px;z-index:2;margin-top:24px;padding:18px 22px;border:1px solid #796744;border-radius:14px;background:#1d2927;box-shadow:0 8px 24px #0005;display:grid;grid-template-columns:180px 1fr;gap:8px 24px}.check-preview h2{font-size:15px;margin:0 0 4px;color:#d2dfd6}.check-total{display:block;font-size:36px;line-height:1.2;color:#e3bb63;font-variant-numeric:tabular-nums}.check-parts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0;align-items:center}.check-parts dt{font-size:13px;color:#aebcb9}.check-parts dd{margin:4px 0 0;font-size:23px;font-weight:600;font-variant-numeric:tabular-nums}.check-preview p{grid-column:1/-1;font-size:13px;margin:0}.check-preview[hidden]{display:none}@media(max-width:760px){.check-preview{position:static;grid-template-columns:1fr}.check-parts{margin:6px 0}.check-parts dt{font-size:12px}.check-parts dd{font-size:20px}}
+</style>
+<header><div class="eyebrow">ARCHIPELAGO / ZERO HOUR</div><h1>Choose your campaign checks.</h1><p>Create your player YAML. Choose your mission sets, starting unlocks and item pool.</p></header>
+<section class="check-preview" aria-labelledby="check-preview-title" aria-live="polite" aria-atomic="true">
+<div><h2 id="check-preview-title">Expected total checks</h2><strong class="check-total" id="check-total">30</strong></div>
+<dl class="check-parts"><div><dt>Story mission checks</dt><dd id="story-check-total">15</dd></div><div><dt>Challenge mission checks</dt><dd id="challenge-check-total">0</dd></div><div><dt>Set bonus checks</dt><dd id="set-check-total">15</dd></div></dl>
+<p id="check-preview-note">Updates as you change options. No YAML download or hosted seed needed.</p>
+</section>
+<main class="layout">
+<section class="panel" aria-label="Campaign settings">
+<label for="player">Player / slot name</label><input id="player" type="text" value="ZeroHour" maxlength="16" required>
+<h2>Story campaigns</h2>
+<label class="row" for="usa"><span>USA<small>Count USA mission victories.</small></span><input id="usa" type="checkbox" checked></label>
+<label class="row" for="china"><span>China<small>Count China mission victories.</small></span><input id="china" type="checkbox" checked></label>
+<label class="row" for="gla"><span>GLA<small>Count GLA mission victories.</small></span><input id="gla" type="checkbox" checked></label>
+<label class="row" for="exclude"><span>Disable Unit Only Missions<small>Remove USA 3 and GLA 4 from checks. You can still play them.</small></span><input id="exclude" type="checkbox"></label>
+<div style="margin-top:26px"><label for="challenge"><strong>Generals Challenge campaigns</strong></label><div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px"><span>0-9 campaigns</span><output id="challenge-count" for="challenge">0</output></div><input id="challenge" type="range" min="0" max="9" step="1" value="0"><p style="margin:0;font-size:13px">The seed chooses distinct playable generals. Each includes 7 or 8 battles, using your checks-per-mission setting. Your client and spoiler list the selected generals.</p></div>
+<div style="margin-top:26px"><h2>Victory Goal</h2>
+<label for="victory-goal">Complete the multiworld goal by</label><select id="victory-goal"><option value="all_sets">Completing all enabled mission sets</option><option value="set_count">Completing a chosen number of sets</option><option value="final_mission">Completing a specific final mission</option></select>
+<div id="goal-sets-settings" hidden><label for="goal-sets">Sets required <output id="goal-sets-count" for="goal-sets">1</output></label><input id="goal-sets" disabled type="range" min="1" max="12" step="1" value="1">
+</div><div id="goal-final-settings" hidden><label for="goal-final">Final mission</label><select id="goal-final" disabled><option value="usa">USA - final mission</option><option value="gla">GLA - final mission</option><option value="china">China - final mission</option><option value="challenge_0">USA Air Force - final mission</option><option value="challenge_1">GLA Toxin - final mission</option><option value="challenge_2">China Nuclear - final mission</option><option value="challenge_3">USA Superweapon - final mission</option><option value="challenge_4">China Tank - final mission</option><option value="challenge_5">USA Laser - final mission</option><option value="challenge_6">GLA Stealth - final mission</option><option value="challenge_7">China Infantry - final mission</option><option value="challenge_8">GLA Demolition - final mission</option></select><p style="font-size:13px">Enable the selected story campaign. A chosen general is included in the challenge count. Other checks stay available after victory.</p></div><p style="font-size:13px">The in-game Progress tab is always enabled.</p></div>
+<div style="margin-top:26px"><h2>Check Counts</h2>
+<label for="mission-checks">Checks per mission <output id="mission-checks-count" for="mission-checks">1</output></label><input id="mission-checks" type="range" min="1" max="10" step="1" value="1">
+<p style="font-size:13px">Each story or Generals Challenge mission awards this many checks on its first completion. Replays do not award more checks.</p>
+<label for="set-checks">Checks per completed set <output id="set-checks-count" for="set-checks">5</output></label><input id="set-checks" type="range" min="0" max="10" step="1" value="5">
+<p style="font-size:13px">Additional checks after completing all included missions in a set. Set to 0 to disable this bonus. Defaults: 1 per mission and 5 per set.</p>
+</div>
+<div style="margin-top:26px"><h2>Permanent Unlocks</h2>
+<label class="row" for="generals-powers"><span>Progressive Generals Powers<small>Received points replace combat-earned points. Each item adds one point to every mission's budget; choose powers separately in each mission.</small></span><input id="generals-powers" type="checkbox"></label>
+<fieldset id="generals-settings" hidden disabled><legend>Generals Point items</legend>
+<label for="generals-points">Items in pool <output id="generals-points-count" for="generals-points">18</output></label><input id="generals-points" type="range" min="0" max="28" step="1" value="18">
+<p style="font-size:13px">Default 18 covers the largest stock menu (China/Infantry). Add up to 10 extra. Rank follows total received points: 1, 2, 3, 4 and 7 for ranks 1-5. Spending points does not lower rank. Mission rank limits and hidden powers still apply; scripted free powers are retained. Requires client 0.16.0 or newer.</p>
+<p style="font-size:13px">With all permanent unlocks selected, increase check counts, enable additional mission sets or reduce other item counts to make room for 18 point items.</p>
+</fieldset>
+<label><input id="general-builders" type="checkbox" checked> Include all nine general-specific builders</label>
+<p style="font-size:13px">Adds nine unlock items alongside USA Dozer, China Dozer and GLA Worker. In the in-game Archipelago menu, choose one unlocked builder per faction for all Command Centers in campaigns and Generals Challenges. Requires space for 12 builder items. Turn off for the three standard builders only.</p>
+
+<label class="row" for="reveal-minimap"><span>Reveal Minimap<small>One permanent unlock. Reveal the battlefield for 15 seconds; 3-minute cooldown.</small></span><input id="reveal-minimap" type="checkbox" checked></label>
+<label class="row" for="emergency-repair"><span>Emergency Repair<small>One permanent unlock. Stock Level 3: instantly restores up to 300 HP per eligible friendly vehicle within radius 100; standard 4-minute cooldown. No Generals points required.</small></span><input id="emergency-repair" type="checkbox" checked></label>
+<label class="row" for="patriot-airdrop"><span>Patriot Airdrop<small>One permanent unlock. A cargo plane parachutes 3 Patriot Missile Systems onto your chosen drop zone; 5-minute cooldown. Uses no power; standard Patriot health and weapons.</small></span><input id="patriot-airdrop" type="checkbox" checked></label>
+<label class="row" for="carpet-bomb"><span>Carpet Bomb<small>One permanent unlock. Target the USA Air Force strike from any faction; 4-minute cooldown.</small></span><input id="carpet-bomb" type="checkbox" checked></label>
+<p style="font-size:13px">Use unlocked abilities in the in-game Archipelago menu. Cooldowns use game time and carry through DeathLink resets. Supply Drop and Reinforcements still activate automatically.</p>
+<label for="cooldown-percent">Ability cooldown (%) <output id="cooldown-percent-count" for="cooldown-percent">100</output></label><input id="cooldown-percent" type="range" min="25" max="300" step="1" value="100">
+<p style="font-size:13px">100% is normal; 50% is half. Applies to permanent Archipelago abilities.</p><div style="margin-top:26px"><h2>Starting Unlocks</h2><p style="font-size:13px">Selected unlocks start in your inventory and are removed from the pool, leaving room for filler or traps. Their corresponding permanent unlock option must be enabled.</p>
+<label class="row" for="unlock0"><span>USA Dozer</span><input id="unlock0" type="checkbox"></label>
+<label class="row" for="unlock1"><span>China Dozer</span><input id="unlock1" type="checkbox"></label>
+<label class="row" for="unlock2"><span>GLA Worker</span><input id="unlock2" type="checkbox"></label>
+<label class="row" for="unlock3"><span>USA Air Force Dozer</span><input id="unlock3" type="checkbox"></label>
+<label class="row" for="unlock4"><span>USA Laser Dozer</span><input id="unlock4" type="checkbox"></label>
+<label class="row" for="unlock5"><span>USA Superweapon Dozer</span><input id="unlock5" type="checkbox"></label>
+<label class="row" for="unlock6"><span>China Infantry Dozer</span><input id="unlock6" type="checkbox"></label>
+<label class="row" for="unlock7"><span>China Nuclear Dozer</span><input id="unlock7" type="checkbox"></label>
+<label class="row" for="unlock8"><span>China Tank Dozer</span><input id="unlock8" type="checkbox"></label>
+<label class="row" for="unlock9"><span>GLA Demolition Worker</span><input id="unlock9" type="checkbox"></label>
+<label class="row" for="unlock10"><span>GLA Stealth Worker</span><input id="unlock10" type="checkbox"></label>
+<label class="row" for="unlock11"><span>GLA Toxin Worker</span><input id="unlock11" type="checkbox"></label>
+<label class="row" for="unlock12"><span>Reveal Minimap</span><input id="unlock12" type="checkbox"></label>
+<label class="row" for="unlock13"><span>Carpet Bomb</span><input id="unlock13" type="checkbox"></label>
+<label class="row" for="unlock15"><span>Emergency Repair</span><input id="unlock15" type="checkbox"></label>
+<label class="row" for="unlock14"><span>Patriot Airdrop</span><input id="unlock14" type="checkbox"></label>
+<label for="starting-points">Starting Generals Points <output id="starting-points-count" for="starting-points">0</output></label><input id="starting-points" type="range" min="0" max="28" step="1" value="0">
+<p style="font-size:13px">Taken from the configured Generals Point item count. Requires Progressive Generals Powers.</p></div></div>
+<div style="margin-top:26px"><h2>Helpful items</h2>
+<label for="cash">Progressive Starting Cash items <output id="cash-count" for="cash">0</output></label><input id="cash" type="range" min="0" max="10" step="1" value="0"><p style="font-size:13px">Each gives $5,000 during play and adds $5,000 at future fresh mission starts. Bonuses wait until after the opening; keep the client open during loading. Saved-game loads do not grant another starting bonus.</p>
+</div>
+<div style="margin-top:26px"><h2>Useful Item Filler</h2>
+<p style="font-size:13px">After placing unlocks, Progressive Starting Cash items and traps, fill remaining slots using these relative weights. Set a weight to 0 to exclude that item. Supply Drops and Reinforcements still activate automatically when received.</p>
+<label for="report-filler">Mission Report weight <output id="report-filler-count" for="report-filler">0</output></label><input id="report-filler" type="range" min="0" max="100" step="1" value="0"><p style="font-size:13px">A filler report with no gameplay effect.</p><p id="report-filler-share" style="font-size:13px"></p>
+<label for="supply-filler">Supply Drop weight <output id="supply-filler-count" for="supply-filler">50</output></label><input id="supply-filler" type="range" min="0" max="100" step="1" value="50"><p style="font-size:13px">One-time $5,000 grant. Does not increase future starting money. Waits until you have control during a mission.</p><p id="supply-filler-share" style="font-size:13px"></p>
+<label for="reinforcement-filler">Reinforcements weight <output id="reinforcement-filler-count" for="reinforcement-filler">50</output></label><input id="reinforcement-filler" type="range" min="0" max="100" step="1" value="50"><p style="font-size:13px">Three CIA Agents and a Heroic (level 3) Humvee carrying five Heroic Missile Defenders, for any faction. Arrives near your Command Center or army; requires clear, revealed ground. Activates automatically and does not unlock training.</p><p id="reinforcement-filler-share" style="font-size:13px"></p>
+<p style="font-size:13px">Defaults give Supply Drops and Reinforcements equal chances, with Mission Reports excluded. When traps are enabled, the default split is 50% traps and 50% useful filler; with traps off, all remaining slots use these weights.</p>
+<p id="filler-summary" aria-live="polite" style="font-size:13px"></p>
+</div>
+<div style="margin-top:26px"><h2>Traps</h2>
+<label class="row" for="trap-enabled"><span>Enable traps<small>Allocate a share of remaining filler slots to traps.</small></span><input id="trap-enabled" type="checkbox" aria-controls="trap-settings"></label>
+<fieldset id="trap-settings" hidden disabled style="border:0;padding:18px 0 0;margin:0;min-width:0">
+<legend class="sr-only">Trap frequency and weights</legend>
+<label for="trap-percent">Remaining pool allocated to traps <output id="trap-percent-count" for="trap-percent">50%</output></label>
+<input id="trap-percent" type="range" min="0" max="100" step="1" value="50">
+<p style="font-size:13px">Default: 50% traps / 50% Useful Item Filler when traps are enabled. The useful half follows the weights above; adding Mission Report weight allows reports in that half. 0% uses only filler weights; 100% uses only traps. Unlocks, builders and Progressive Starting Cash items are placed first. Odd totals give the extra slot to filler.</p>
+<h2>Trap strength</h2><label for="power-seconds">Power Outage seconds <output id="power-seconds-count" for="power-seconds">30</output></label><input id="power-seconds" type="range" min="5" max="180" step="1" value="30">
+<label for="shutdown-seconds">Production Shutdown seconds <output id="shutdown-seconds-count" for="shutdown-seconds">20</output></label><input id="shutdown-seconds" type="range" min="5" max="180" step="1" value="20">
+<label for="theft-percent">Cash Theft (%) <output id="theft-percent-count" for="theft-percent">25</output></label><input id="theft-percent" type="range" min="1" max="100" step="1" value="25">
+<h2>Which traps?</h2>
+<p style="font-size:13px">Weights are relative chances, not item counts. Each trap starts at 50. A weight of 25 is half as likely as 50. Set a weight to 0 to remove that trap. Actual counts vary with the seed.</p>
+<label for="power-weight">Power Outage Trap <output id="power-weight-count" for="power-weight">50</output></label><input id="power-weight" type="range" min="0" max="100" step="1" value="50"><p style="font-size:13px">Power outage for the duration above. <span id="power-share"></span></p>
+<label for="theft-weight">Cash Theft <output id="theft-weight-count" for="theft-weight">50</output></label><input id="theft-weight" type="range" min="0" max="100" step="1" value="50"><p style="font-size:13px">Lose the chosen percentage of cash, with no cap. <span id="theft-share"></span></p>
+<label for="shutdown-weight">Production Shutdown <output id="shutdown-weight-count" for="shutdown-weight">50</output></label><input id="shutdown-weight" type="range" min="0" max="100" step="1" value="50"><p style="font-size:13px">Pause unit training for the duration above, keeping queues intact. <span id="shutdown-share"></span></p>
+<label for="sell-weight">Sell Random Building <output id="sell-weight-count" for="sell-weight">50</output></label><input id="sell-weight" type="range" min="0" max="100" step="1" value="50"><p style="font-size:13px">Sell one random completed building you own using the refund mode below. Skips unsellable buildings; no eligible target consumes the trap without a sale. <span id="sell-share"></span></p>
+<label for="sell-refund">Building sale refund</label><select id="sell-refund"><option value="normal_refund">Normal refund</option><option value="no_refund">Sell for nothing</option></select><p style="font-size:13px">Normal refund uses the normal sale animation. Sell for nothing removes the building immediately after sale cleanup, with no money returned, including cancelled production.</p>
+<p style="font-size:13px">Traps wait until the player has control after cutscenes or pauses. Requires client 0.14.0 or newer.</p>
+</fieldset>
+<p id="trap-summary" aria-live="polite" style="font-size:13px"></p>
+</div>
+<div style="margin-top:26px"><h2>Starting mission sets</h2>
+<p style="font-size:13px">Each enabled set requires its unlock item. Choose specific starting sets below, or leave all unchecked for random choices. Remaining starting slots are random.</p>
+<label for="startcount">Number of starting sets <output id="start-count" for="startcount">1</output></label>
+<input id="startcount" type="range" min="1" max="12" step="1" value="1">
+<p style="font-size:13px">Limited to the number of enabled sets. Chosen generals are included in the Generals Challenge campaign count.</p>
+<label class="row" for="start0"><span>USA</span><input id="start0" type="checkbox"></label>
+<label class="row" for="start1"><span>GLA</span><input id="start1" type="checkbox"></label>
+<label class="row" for="start2"><span>China</span><input id="start2" type="checkbox"></label>
+<label class="row" for="start3"><span>USA Air Force</span><input id="start3" type="checkbox"></label>
+<label class="row" for="start4"><span>GLA Toxin</span><input id="start4" type="checkbox"></label>
+<label class="row" for="start5"><span>China Nuclear</span><input id="start5" type="checkbox"></label>
+<label class="row" for="start6"><span>USA Superweapon</span><input id="start6" type="checkbox"></label>
+<label class="row" for="start7"><span>China Tank</span><input id="start7" type="checkbox"></label>
+<label class="row" for="start8"><span>USA Laser</span><input id="start8" type="checkbox"></label>
+<label class="row" for="start9"><span>GLA Stealth</span><input id="start9" type="checkbox"></label>
+<label class="row" for="start10"><span>China Infantry</span><input id="start10" type="checkbox"></label>
+<label class="row" for="start11"><span>GLA Demolition</span><input id="start11" type="checkbox"></label>
+<p style="font-size:13px">Mission and set rewards use your Check Counts settings above. Excluded USA 3 / GLA 4 missions are not required for this bonus.</p></div>
+<h2 style="margin-top:26px">Deathlink</h2>
+<label class="row" for="deathlink"><span>DeathLink<small>Mission failures send DeathLink. Received links restart your active mission.</small></span><input id="deathlink" type="checkbox"></label>
+<label for="deathmode" style="display:block;margin-top:18px">DeathLink restart mode</label>
+<select id="deathmode" style="width:100%;margin-top:8px;padding:10px;background:#101719;color:#edf2ec;border:1px solid #60736f;border-radius:6px">
+<option value="full_restart">Option 1: Full Restart</option>
+<option value="quick_reset">Option 2: Quick Reset (experimental)</option>
+</select>
+<label class="row" for="death-grace-enabled"><span>Enable DeathLink grace period<small>Optional immunity after a DeathLink reset. Off by default.</small></span><input id="death-grace-enabled" type="checkbox"></label>
+<fieldset id="death-grace-settings" hidden disabled><legend>Grace duration</legend>
+<label for="death-grace">DeathLink grace period (seconds) <output id="death-grace-count" for="death-grace">30</output></label><input id="death-grace" type="range" min="0" max="300" step="1" value="30">
+<p style="font-size:13px">After a DeathLink reset, ignore incoming links for this much player-controlled game time. Loading, intros and pauses do not consume it. Failures still send DeathLink.</p></fieldset><p style="font-size:13px">Use the in-game DeathLink tab to follow these YAML settings or override them for your current seed. Changes apply without regenerating.</p><p id="deathnote" style="font-size:13px" aria-live="polite"></p>
+</section>
+<section class="panel" aria-label="YAML preview"><h2>Your player file</h2><p id="summary" aria-live="polite"></p><pre id="yaml" aria-label="Generated YAML"></pre><p id="error" role="alert"></p><button id="download" type="button">Download YAML</button><p style="font-size:13px">Place this file with the other player YAMLs and generate a new multiworld using Zero Hour world 0.19.0 or newer.</p></section>
+</main>
+<footer>This creator works offline. Defaults include 15 story victories plus 15 set-bonus checks, with one random starting set, all 12 builders and all three permanent abilities enabled; Progressive Generals Powers is optional.<br>Existing builder unlocks are retained; broader unit and mission randomization is deferred. Changing this file does not change a room that has already been generated.</footer>
+<script>
+const byId=id=>document.getElementById(id);
+const setLabels=["USA", "GLA", "China", "USA Air Force", "GLA Toxin", "China Nuclear", "USA Superweapon", "China Tank", "USA Laser", "GLA Stealth", "China Infantry", "GLA Demolition"];
+const setKeys=["usa", "gla", "china", "challenge_0", "challenge_1", "challenge_2", "challenge_3", "challenge_4", "challenge_5", "challenge_6", "challenge_7", "challenge_8"];
+const unlockNames=["USA Dozer", "China Dozer", "GLA Worker", "USA Air Force Dozer", "USA Laser Dozer", "USA Superweapon Dozer", "China Infantry Dozer", "China Nuclear Dozer", "China Tank Dozer", "GLA Demolition Worker", "GLA Stealth Worker", "GLA Toxin Worker", "Reveal Minimap", "Carpet Bomb", "Patriot Airdrop", "Emergency Repair"];
+function update(){
+ const victoryGoal=byId('victory-goal').value,finalSet=byId('goal-final').value;
+ const numeric={'goal-sets':'goal_set_count','power-seconds':'power_outage_seconds','shutdown-seconds':'production_shutdown_seconds','theft-percent':'cash_theft_percent','cooldown-percent':'ability_cooldown_percent','death-grace':'death_link_grace_seconds','starting-points':'starting_generals_points'};
+ const values={};Object.entries(numeric).forEach(([id,key])=>{values[key]=Number(byId(id).value);byId(id+'-count').value=String(values[key]);});
+ byId('goal-sets-settings').hidden=victoryGoal!=='set_count';byId('goal-final-settings').hidden=victoryGoal!=='final_mission';
+ byId('goal-sets').disabled=victoryGoal!=='set_count';byId('goal-final').disabled=victoryGoal!=='final_mission';
+ const graceEnabled=byId('death-grace-enabled').checked;
+ byId('death-grace-enabled').disabled=!byId('deathlink').checked;
+ byId('death-grace-settings').hidden=!graceEnabled;byId('death-grace-settings').disabled=!graceEnabled||!byId('deathlink').checked;
+ byId('death-grace').disabled=!graceEnabled||!byId('deathlink').checked;
+ const startingUnlocks=unlockNames.filter((_,i)=>byId('unlock'+i).checked);
+ const startingBuilders=startingUnlocks.filter(n=>unlockNames.indexOf(n)<12),startingAbilities=startingUnlocks.filter(n=>unlockNames.indexOf(n)>=12);
+
+ const usa=byId('usa').checked,china=byId('china').checked,gla=byId('gla').checked,exclude=byId('exclude').checked;
+ const count=Number(byId('challenge').value),name=byId('player').value.trim();
+ const cash=Number(byId('cash').value);byId('cash-count').value=String(cash);
+ const missionChecks=Number(byId('mission-checks').value),setChecks=Number(byId('set-checks').value);
+ byId('mission-checks-count').value=String(missionChecks);byId('set-checks-count').value=String(setChecks);
+ const generalsPowers=byId('generals-powers').checked,generalsPoints=Number(byId('generals-points').value);
+ byId('generals-settings').hidden=!generalsPowers;byId('generals-settings').disabled=!generalsPowers;byId('generals-points').disabled=!generalsPowers;
+ byId('generals-points-count').value=String(generalsPoints);
+ const generalBuilders=byId('general-builders').checked,builderCount=generalBuilders?12:3;
+ const trapsEnabled=byId('trap-enabled').checked,trapPercent=Number(byId('trap-percent').value);
+ const weightIds=['power-weight','theft-weight','shutdown-weight','sell-weight'],weights=weightIds.map(id=>Number(byId(id).value));
+ const weightSum=weights.reduce((a,b)=>a+b,0);
+ byId('trap-settings').hidden=!trapsEnabled;byId('trap-settings').disabled=!trapsEnabled;byId('sell-refund').disabled=!trapsEnabled;
+ ['trap-percent',...weightIds].forEach(id=>byId(id).disabled=!trapsEnabled);
+ byId('trap-percent-count').value=trapPercent+'%';
+ weightIds.forEach((id,i)=>{byId(id+'-count').value=String(weights[i]);byId(['power-share','theft-share','shutdown-share','sell-share'][i]).textContent=weights[i]&&weightSum?(weights[i]*100/weightSum).toFixed(1)+'% chance per trap.':'Excluded.';});
+ byId('deathmode').disabled=!byId('deathlink').checked;
+ byId('deathnote').textContent=byId('deathmode').value==='quick_reset'?'Watch the opening once. Later DeathLinks restore an automatic post-intro checkpoint. Keep the client connected before starting. Without a checkpoint, Option 1 is used.':'Every received DeathLink forces a full mission restart and replays the opening intro.';
+ byId('challenge-count').value=String(count);
+ const story=5*(Number(usa)+Number(china)+Number(gla))-(exclude?(Number(usa)+Number(gla)):0);
+ const startCount=Number(byId('startcount').value),chosen=setLabels.filter((_,i)=>byId('start'+i).checked);
+ const sets=Number(usa)+Number(china)+Number(gla)+count,actualStart=Math.min(startCount,sets);
+ byId('start-count').value=String(startCount);
+ const fixedGenerals=[...new Set([...chosen.filter(label=>setLabels.indexOf(label)>=3),...(victoryGoal==='final_mission'&&setKeys.indexOf(finalSet)>=3?[setLabels[setKeys.indexOf(finalSet)]]:[])])];
+ const fixedEight=fixedGenerals.filter(label=>setLabels.indexOf(label)>=10).length;
+ const randomGenerals=count-fixedGenerals.length;
+ const challengeLow=7*count+fixedEight+Math.max(0,randomGenerals-(7-(fixedGenerals.length-fixedEight)));
+ const challengeHigh=7*count+fixedEight+Math.min(randomGenerals,2-fixedEight);
+ const low=(story+challengeLow)*missionChecks+setChecks*sets;
+ const high=(story+challengeHigh)*missionChecks+setChecks*sets;
+ byId('summary').textContent=(low===high?low:low+'-'+high)+' total checks (including set bonuses)';
+ const chosenDisabled=chosen.some(label=>(label==='USA'&&!usa)||(label==='China'&&!china)||(label==='GLA'&&!gla));
+ const reveal=byId('reveal-minimap').checked,carpet=byId('carpet-bomb').checked,patriot=byId('patriot-airdrop').checked,repair=byId('emergency-repair').checked;
+ const required=(generalsPowers?generalsPoints:0)+Number(reveal)+Number(carpet)+Number(patriot)+Number(repair)+builderCount+cash+(sets-actualStart)-startingUnlocks.length-values.starting_generals_points;
+ const range=(lo,hi)=>lo===hi?String(lo):lo+'-'+hi;
+ const validSelection=!chosenDisabled&&fixedGenerals.length<=count&&chosen.length<=actualStart;
+ byId('check-total').textContent=validSelection?range(low,high):'--';
+ byId('story-check-total').textContent=validSelection?String(story*missionChecks):'--';
+ byId('challenge-check-total').textContent=validSelection?range(challengeLow*missionChecks,challengeHigh*missionChecks):'--';
+ byId('set-check-total').textContent=validSelection?String(setChecks*sets):'--';
+ byId('check-preview-note').textContent=!validSelection?'Choose valid campaign and starting-set settings to calculate the total.':sets===0?'Select a story campaign or Generals Challenge campaign to add checks.':low!==high?'Range shown because randomly selected generals have 7 or 8 missions. The exact total is determined when the seed is generated.':'Updates instantly as you change options. Item quantities and trap weights change the pool, not the number of checks.';
+ if(!validSelection)byId('summary').textContent='Check total unavailable until campaign and starting-set settings are valid.';
+ const leftLow=Math.max(0,low-required),leftHigh=Math.max(0,high-required);
+ const trapLow=trapsEnabled?Math.floor(leftLow*trapPercent/100):0,trapHigh=trapsEnabled?Math.floor(leftHigh*trapPercent/100):0;
+ const fillerIds=['report-filler','supply-filler','reinforcement-filler'],fillerNames=['Mission Report','Supply Drop','Reinforcements'];
+ const fillerWeights=fillerIds.map(id=>Number(byId(id).value)),fillerSum=fillerWeights.reduce((a,b)=>a+b,0);
+ fillerIds.forEach((id,i)=>{byId(id+'-count').value=String(fillerWeights[i]);byId(id+'-share').textContent=fillerWeights[i]&&fillerSum?(100*fillerWeights[i]/fillerSum).toFixed(1)+'% chance per non-trap filler slot.':'Excluded from weighted filler.';});
+ const fillerLow=leftLow-trapLow,fillerHigh=leftHigh-trapHigh;
+ byId('trap-summary').textContent=(trapsEnabled?'Pool preview: ':'Traps disabled: ')+range(trapLow,trapHigh)+' traps and '+range(fillerLow,fillerHigh)+(fillerWeights[0]>0&&!fillerWeights[1]&&!fillerWeights[2]?' Mission Reports.':' non-trap filler slots.');
+ byId('filler-summary').textContent=fillerHigh===0?'No slots remain for weighted filler.':!fillerSum?'Give at least one filler item a weight above zero.':range(fillerLow,fillerHigh)+' weighted filler slots. Expected items: '+fillerNames.map((name,i)=>name+' '+range((fillerLow*fillerWeights[i]/fillerSum).toFixed(1),(fillerHigh*fillerWeights[i]/fillerSum).toFixed(1))).join(', ')+'. These are averages; actual counts are determined by the seed.';
+ const availableUnlocks=[...unlockNames.slice(0,generalBuilders?12:3),...(reveal?['Reveal Minimap']:[]),...(carpet?['Carpet Bomb']:[]),...(patriot?['Patriot Airdrop']:[]),...(repair?['Emergency Repair']:[])];
+ const optionError=startingUnlocks.some(n=>!availableUnlocks.includes(n))?'Enable each selected starting unlock.':values.starting_generals_points>0&&(!generalsPowers||values.starting_generals_points>generalsPoints)?'Starting points require progressive powers and cannot exceed the item count.':victoryGoal==='set_count'&&values.goal_set_count>sets?'The victory goal requires more sets than are enabled.':victoryGoal==='final_mission'&&((finalSet==='usa'&&!usa)||(finalSet==='china'&&!china)||(finalSet==='gla'&&!gla))?'Enable the campaign containing the final mission.':'';
+ const error=optionError?optionError:chosenDisabled?'Enable each chosen starting story campaign.':fixedGenerals.length>count?'Increase the Generals Challenge count to include your chosen starting generals.':chosen.length>actualStart?'Increase the starting set count or choose fewer specific sets.':!name?'Enter a player name.':low===0?'Enable at least one campaign or choose a Generals Challenge count above zero.':required>low?'Not enough checks for builders, set unlocks and these items. Increase check counts, reduce item counts or enable more campaigns.':trapsEnabled&&trapPercent>0&&weightSum===0?'Give at least one trap a weight above zero, set the trap percentage to 0%, or disable traps.':'';
+ const fillerError=fillerHigh>0&&!fillerSum?'Give at least one filler item a weight above zero.':'';
+ byId('error').textContent=error||fillerError;byId('download').disabled=Boolean(error||fillerError);
+ byId('yaml').textContent='name: '+JSON.stringify(name)+'\ngame: "Command & Conquer: Generals - Zero Hour"\n"Command & Conquer: Generals - Zero Hour":\n  progression_balancing: 0\n  accessibility: full\n  usa_campaign: '+usa+'\n  china_campaign: '+china+'\n  gla_campaign: '+gla+'\n  disable_unit_only_missions: '+exclude+'\n  generals_challenge_campaigns: '+count+'\n  mission_completion_checks: '+missionChecks+'\n  set_completion_checks: '+setChecks+'\n  general_builder_unlocks: '+generalBuilders+'\n  reveal_minimap: '+reveal+'\n  carpet_bomb: '+carpet+'\n  patriot_airdrop: '+patriot+'\n  emergency_repair: '+repair+'\n  progressive_generals_powers: '+generalsPowers+'\n  generals_point_items: '+generalsPoints+'\n  progressive_starting_cash: '+cash+'\n  traps_enabled: '+trapsEnabled+'\n  trap_percentage: '+trapPercent+'\n  power_outage_weight: '+weights[0]+'\n  cash_theft_weight: '+weights[1]+'\n  production_shutdown_weight: '+weights[2]+'\n  sell_random_building_weight: '+weights[3]+'\n  sell_building_refund: '+byId('sell-refund').value+'\n  starting_set_count: '+startCount+'\n  starting_mission_sets: '+JSON.stringify(chosen)+'\n  death_link: '+byId('deathlink').checked+'\n  # Option 1 replays the opening intro; Option 2 restores a post-intro checkpoint.\n  death_link_mode: '+byId('deathmode').value+'\n';
+ byId('yaml').textContent+='  death_link_grace_enabled: '+graceEnabled+'\n';
+ ['mission_report_weight','supply_drop_weight','reinforcements_weight'].forEach((key,i)=>byId('yaml').textContent+='  '+key+': '+fillerWeights[i]+'\n');
+ byId('yaml').textContent+='  victory_goal: '+victoryGoal+'\n  starting_builders: '+JSON.stringify(startingBuilders)+'\n  starting_abilities: '+JSON.stringify(startingAbilities)+'\n';
+ if(victoryGoal==='final_mission')byId('yaml').textContent+='  goal_final_set: '+finalSet+'\n';
+ if(victoryGoal!=='set_count')delete values.goal_set_count;
+ Object.entries(values).forEach(([key,value])=>byId('yaml').textContent+='  '+key+': '+value+'\n');
+}
+document.querySelectorAll('input, select').forEach(input=>['input','change'].forEach(event=>input.addEventListener(event,update)));
+byId('download').addEventListener('click',()=>{update();if(byId('download').disabled)return;const url=URL.createObjectURL(new Blob([byId('yaml').textContent],{type:'text/yaml;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='ZeroHour.yaml';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);});
+update();
+</script>
+</html>
