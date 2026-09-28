@@ -88,7 +88,8 @@ class LogQueue(logging.Handler):
 
     def emit(self, record):
         try:
-            self.messages.put_nowait((self.format(record), getattr(record, 'item_parts', None)))
+            self.messages.put_nowait((self.format(record), getattr(record, 'item_parts', None),
+                                     getattr(record, 'log_colour', None)))
         except queue.Full:
             pass
 
@@ -219,8 +220,10 @@ class ClientWindow:
         if lines:
             at_bottom = self.log.yview()[1] >= .99
             self.log.configure(state='normal')
-            for message, parts in lines:
-                if parts:
+            for message, parts, colour in lines:
+                if colour:
+                    self.log.insert('end', message + '\n', (colour,))
+                elif parts:
                     body = ''.join(text for text, _ in parts)
                     prefix = message[:-len(body)] if body and message.endswith(body) else ''
                     self.log.insert('end', prefix, ())

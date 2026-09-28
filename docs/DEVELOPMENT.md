@@ -59,8 +59,8 @@ Target: https://github.com/ItsMrNew/ZeroHour-Archipelago
 2. Select a project source license before describing it as open source. No project
    license has been chosen; dependency licenses are separate.
 3. Commit reviewed source using the repository's existing main history.
-4. Tag `v0.8.0`; create a GitHub prerelease titled
-   `Zero Hour Archipelago 0.8.0 - Steam preview`, using `docs/releases/0.8.0.md`.
+4. Tag `v0.8.2`; create a GitHub prerelease titled
+   `Zero Hour Archipelago 0.8.2 - Steam preview`, using `docs/releases/0.8.2.md`.
 5. Upload the prepared ZIPs, world and SHA256SUMS, then verify downloaded hashes.
 
 The builder does not publish, tag or upload. CI runs tests only.

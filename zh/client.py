@@ -552,7 +552,9 @@ class ZeroHourClient:
                     snapshot = game.snapshot()
                     if restart:
                         for message in restart.poll():
-                            LOG.info('%s', message)
+                            locked = (isinstance(restart, MissionControl)
+                                      and restart.action in (3, 4) and restart.lock_reason is not None)
+                            LOG.info('%s', message, extra={'log_colour': '#FA8072' if locked else None})
                         if isinstance(restart, QuickReset) and restart.restored:
                             restart.restored = False
                             # The native load already reconciled saved cash. Do

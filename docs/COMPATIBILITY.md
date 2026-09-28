@@ -1,9 +1,12 @@
-# Compatibility and troubleshooting — 0.8.0
+# Compatibility and troubleshooting — 0.8.1
 
 | Configuration | Support status |
 | --- | --- |
 | Stock English Steam Zero Hour on Windows: campaigns / Generals Challenges | Supported target |
-| Steam with GenTool, GenPatcher, custom DLLs, alternative launchers or mods | Untested; reproduce on stock Steam first |
+| Steam + GenPatcher v2.14 with Fixes Applied | User-tested: working |
+| Steam + GenTool v8.9 installed through GenPatcher | User-tested: working |
+| GenLauncher | Untested |
+| Other tool versions, custom DLLs or mods | Untested; reproduce on stock Steam first |
 | GeneralsOnline / replacement engine | Not supported in this release |
 | EA App / Ultimate Collection | Not validated |
 | Origin | Not validated |
@@ -20,9 +23,18 @@ GeneralsOnline is a source-based fork using `GeneralsOnlineZH.exe`. Its FAQ says
 it coexists with the standard game without replacing it. Use the standard Steam
 game for this release. [GeneralsOnline](https://www.playgenerals.online/)
 
+Inspection of the installed files confirms `GeneralsOnlineZH.exe` is the launcher
+and `GeneralsOnlineZH_60.exe` is a different engine that fails the current native
+layout checks. The installed Easy Anti-Cheat configuration targets that engine.
+Its runtime interaction with the client has not been tested. Supporting it needs
+a separate engine integration; see the [investigation](GENERALS_ONLINE_INVESTIGATION.md).
+
 GenTool's own supported-game list does not establish compatibility with this
-client's native hooks. GenPatcher and other tools may change configuration. We have
-not audited each tool/version and do not assume they all modify the EXE.
+client's native hooks. On 2026-09-27, the user confirmed Steam works with
+GenPatcher v2.14 (Fixes Applied) and GenTool v8.9 installed through GenPatcher.
+These are version-specific gameplay reports, not validation of every feature or
+future tool release. GenPatcher and other tools may change configuration. We do
+not assume they all modify the EXE.
 [GenTool](https://www.gentool.net/) · [GenPatcher](https://www.gentool.net/genpatcher/)
 
 DLLs can change a running game without changing Game.dat's hash. Different

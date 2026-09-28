@@ -1,18 +1,20 @@
 # Zero Hour Archipelago
 
-**Launcher 0.8.0 — Steam preview** · World **0.20.0** · Archipelago **0.6.7** · Windows
+**Launcher 0.8.2 — Steam preview** · World **0.20.0** · Archipelago **0.6.7** · Windows
 
 Play the USA, China and GLA campaigns and Generals Challenges as part of an
 Archipelago multiworld. Victories award checks; items unlock mission sets,
 builders and permanent abilities.
 
 **Supported: stock English Steam Command & Conquer: Generals - Zero Hour.**
-EA App, Origin, The First Decade, GeneralsOnline, GenTool/GenPatcher combinations
-and modified engines are not validated. See [compatibility](docs/COMPATIBILITY.md).
+Steam with GenPatcher v2.14 (Fixes Applied) and GenTool v8.9 installed through
+GenPatcher are user-tested as working. GenLauncher, EA App, Origin and The First
+Decade remain untested; GeneralsOnline is unsupported.
+See [compatibility](docs/COMPATIBILITY.md) for the version-specific reports.
 
 ## Install and play
 
-1. Download `ZeroHour-Archipelago-0.8.0-Steam.zip` from
+1. Download `ZeroHour-Archipelago-0.8.2-Steam.zip` from
    [GitHub Releases](https://github.com/ItsMrNew/ZeroHour-Archipelago/releases).
    Extract the whole ZIP into its own folder.
 2. Install `generals_zh.apworld` in Archipelago's `custom_worlds` and restart
@@ -103,6 +105,6 @@ coverage; live healing confirmation remains outstanding for this preview.
 ## Source workspace
 
 See [development/builds](docs/DEVELOPMENT.md), [change history](CHANGELOG.md) and
-[release notes](docs/releases/0.8.0.md).
+[release notes](docs/releases/0.8.2.md).
 
 Unofficial community integration; not an EA, Valve or Archipelago release.

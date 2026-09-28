@@ -51,7 +51,8 @@ def main(archive_only=False):
         readme = readme.replace("tools/diagnostics/", "Diagnostics/")
         (stage / "README.md").write_text(readme, encoding="utf-8")
         (stage / 'docs').mkdir()
-        shutil.copyfile(ROOT / 'docs/COMPATIBILITY.md', stage / 'docs/COMPATIBILITY.md')
+        for name in ('COMPATIBILITY.md', 'GENERALS_ONLINE_INVESTIGATION.md'):
+            shutil.copyfile(ROOT / 'docs' / name, stage / 'docs' / name)
         for name in ('THIRD_PARTY_NOTICES.md', 'CHANGELOG.md'):
             shutil.copyfile(ROOT / name, stage / name)
         diagnostics = stage / "Diagnostics"
