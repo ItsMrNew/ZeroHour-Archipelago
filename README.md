@@ -9,7 +9,7 @@ You can play alone or alongside players of other Archipelago games.
 
 ## What you need
 
-- An installed copy of **stock English Zero Hour on Steam or the EA App**.
+- An installed copy of **English Zero Hour on Steam or the EA App**.
 - [Archipelago for Windows](https://github.com/ArchipelagoMW/Archipelago/releases).
   This release is tested with **Archipelago 0.6.7**. Include the generator during
   installation if you will create the world for your group.
@@ -17,10 +17,11 @@ You can play alone or alongside players of other Archipelago games.
   [Zero Hour Archipelago Releases](https://github.com/ItsMrNew/ZeroHour-Archipelago/releases).
 
 **Both the Steam and EA App versions have been tested and verified as working.**
-Steam with GenPatcher 2.14 fixes and GenTool 8.9 has also been tested successfully.
-Generals Online is **not compatible**. GenLauncher and The First Decade
-are untested. This integration is for single-player campaigns and Generals
-Challenges; it does not connect Zero Hour online matches.
+**Steam & EA App versions with GenPatcher 2.14 fixes and GenTool 8.9 have also been confirmed as working**
+Generals Online is **not compatible**. 
+GenLauncher and The First Decade are untested. 
+
+This integration is for single-player campaigns and Generals Challenges; it is not utilised within Zero Hour online matches.
 
 ## 1. Install Zero Hour Client
 
