@@ -1,6 +1,9 @@
 # Release history
 
-See [CHANGELOG.md](../CHANGELOG.md), [0.8.4 notes](releases/0.8.4.md), [0.8.3 notes](releases/0.8.3.md), [0.8.2 notes](releases/0.8.2.md), [0.8.1 notes](releases/0.8.1.md)
-and [0.8.0 notes](releases/0.8.0.md).
-Internal builds through 0.21.1 preceded public 0.8.0. Detailed investigation notes
-and old seed/build references remain in the ignored local cleanup archive.
+The current release is [0.8.4](releases/0.8.4.md), with separate Archipelago Launcher
+and standalone Windows downloads. See the [install-and-play guide](../README.md).
+
+The [changelog](../CHANGELOG.md) records earlier development. Historical notes for
+[0.8.3](releases/0.8.3.md) and [0.8.1](releases/0.8.1.md) are retained for reference.
+Detailed investigation notes and old seed/build references remain in the ignored
+local cleanup archive.

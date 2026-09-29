@@ -36,8 +36,8 @@ Keep private seeds/YAMLs in ignored local folders, not `players/`.
 
 ## Versions and packages
 
-`zh/version.py` defines the launcher release. Public 0.8.0 follows internal 0.21.1.
-World 0.20.0 and protocol 17 stay unchanged. The AP network version remains 0.6.7.
+`zh/version.py` defines the launcher release. The current client is 0.8.4, with
+world 0.21.0 and protocol 18. The AP network version remains 0.6.7.
 
 The builder produces a Windows player ZIP for Steam and EA App, allowlisted source ZIP, standalone world,
 release notes and SHA256SUMS in an upload folder. Player packaging uses an empty
