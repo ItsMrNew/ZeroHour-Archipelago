@@ -45,11 +45,13 @@ def build_stub(base, code, mailbox, extras=False, generals=False):
         branches.append((len(out), label))
         emit('00 00 00 00')
     emit('9c 60 bf', mailbox)                 # pushfd; pushad; mov edi, mailbox
+    from . import radar_outage
+    emit('b8', code + radar_outage.PAGE); emit('ff d0')
     if generals:
         emit('b8', code + 0x3000); emit('ff d0')
     if extras:
         from .consumables import emit_maintenance
-        emit_maintenance(emit, branch, labels, out, base, mailbox)
+        emit_maintenance(emit, branch, labels, out, base, mailbox, code)
     emit('83 3f 01')                         # only published requests
     branch('0f 85', 'done')
     emit('b8', 1)
@@ -98,6 +100,7 @@ def build_stub(base, code, mailbox, extras=False, generals=False):
     emit('03 47 0c')                         # + duration
     branch('0f 82', 'reject')                # reject unsigned overflow
     emit('89 86 8c 00 00 00 89 47 18')      # store native expiry and result
+    radar_outage.record(emit)
     emit('89 f1 6a 01')                      # this=player; brownOut=true
     emit('b8', base + BROWNOUT_RVA)
     emit('ff d0')                            # call native routine on game thread
@@ -122,7 +125,8 @@ def build_stub(base, code, mailbox, extras=False, generals=False):
 
 
 class PowerOutage:
-    allocation_size = 0x3000
+    allocation_size = 0x6000
+    radar_outage_enabled = True
     layouts = TABLE_LAYOUTS
     signature = (BROWNOUT_RVA, bytes.fromhex('8a 44 24 04 84 c0 56 57'))
 
@@ -130,7 +134,10 @@ class PowerOutage:
         return build_stub(self.game.base, code, mailbox)
 
     def extra_pages(self, region, mailbox):
-        return {}
+        if not self.radar_outage_enabled:
+            return {}
+        from . import radar_outage
+        return {region + radar_outage.PAGE: radar_outage.page(self.game.base, region, mailbox)}
 
     def __init__(self, game):
         self.game = game
@@ -158,6 +165,9 @@ class PowerOutage:
             if state.logic != self.logic or game.pointer(self.logic) != self.table:
                 raise MemoryReadError('Power update hook changed; restart Zero Hour before retrying.')
             return
+        if self.radar_outage_enabled:
+            from . import radar_outage
+            radar_outage.validate(game)
         original = game.pointer(state.logic)
         layout = self.layouts.get(original - game.base)
         if layout is None or game.read(original, len(layout) * 4) != struct.pack(f'<{len(layout)}I', *(game.base + rva for rva in layout)):
@@ -177,13 +187,19 @@ class PowerOutage:
             table, mailbox = region + 0x1004, region + 0x2000
             vtable = bytearray(game.read(original - 4, 4 + len(layout) * 4))
             struct.pack_into('<I', vtable, 4 + 4 * 4, region)
-            self._write(handle, region, self.make_stub(region, mailbox))
+            main = self.make_stub(region, mailbox)
+            extra = self.extra_pages(region, mailbox)
+            if len(main) > 0x1000:
+                raise MemoryReadError('Primary callback exceeds its code page.')
+            for address, data in extra.items():
+                if (not data or len(data) > 0x1000 or address % 0x1000
+                        or address < region + 0x3000
+                        or address + 0x1000 > region + self.allocation_size):
+                    raise MemoryReadError('Additional callback lies outside its allocated code pages.')
+            self._write(handle, region, main)
             self._write(handle, table - 4, bytes(vtable))
             self._write(handle, mailbox, bytes(28))
-            extra = self.extra_pages(region, mailbox)
             for address, data in extra.items():
-                if len(data) > 0x1000:
-                    raise MemoryReadError('Additional callback exceeds its code page.')
                 self._write(handle, address, data)
             old = wt.DWORD()
             for address, protection in ((region, 0x20), (region + 0x1000, 0x02), *((a, 0x20) for a in extra)):
@@ -244,6 +260,9 @@ class PowerOutage:
     def close(self):
         if not self.region:
             return
+        if self.radar_outage_enabled:
+            from . import radar_outage
+            radar_outage.detach(self.game, self.region, self.mailbox)
         # Never free published code: an update may already have loaded its address.
         # At most one pending request can finish; it has a persisted receipt.
         if self.game.pointer(self.logic) == self.table:

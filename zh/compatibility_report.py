@@ -23,8 +23,8 @@ def executable_report(path):
         report['reason'] = str(error) if isinstance(error, ValueError) else f'Could not read file (OS error {error.errno}).'
     report['guidance'] = (
         'Native layout matches. This does not certify a storefront, injected DLLs, mods or live gameplay. '
-        'Support for this release is limited to the stock English Steam edition.'
+        'Supported editions are stock English Steam and EA App Zero Hour on Windows.'
         if report['native_layout_verified'] else
-        'Do not bypass validation. Use the stock English Steam edition; other builds need separate compatibility work.'
+        'Do not bypass validation. Use a validated stock English Steam or EA App build; changed engines need separate compatibility work.'
     )
     return report

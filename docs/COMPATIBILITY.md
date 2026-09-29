@@ -1,15 +1,14 @@
-# Compatibility and troubleshooting — 0.8.1
+# Compatibility and troubleshooting — 0.8.4
 
 | Configuration | Support status |
 | --- | --- |
-| Stock English Steam Zero Hour on Windows: campaigns / Generals Challenges | Supported target |
+| Stock English Steam Zero Hour on Windows: campaigns / Generals Challenges | Tested and verified working |
 | Steam + GenPatcher v2.14 with Fixes Applied | User-tested: working |
 | Steam + GenTool v8.9 installed through GenPatcher | User-tested: working |
 | GenLauncher | Untested |
 | Other tool versions, custom DLLs or mods | Untested; reproduce on stock Steam first |
-| GeneralsOnline / replacement engine | Not supported in this release |
-| EA App / Ultimate Collection | Not validated |
-| Origin | Not validated |
+| GeneralsOnline (`GeneralsOnlineZH.exe` / `GeneralsOnlineZH_60.exe`) | Not compatible |
+| Stock English EA App Zero Hour on Windows: campaigns / Generals Challenges | Tested and verified working; inspected build passes all 327 anchors and offline tests, with user-reported gameplay success. See [validation](EA_APP_VALIDATION.md). |
 | First Decade / retail | Not validated |
 | Other languages, Wine/Proton, online matches | Outside release scope |
 
@@ -17,17 +16,12 @@ These boundaries do not mean every other installation necessarily fails.
 Native checks do not prove purchase source, and storefront guesses never bypass
 validation.
 
+The EA App findings apply to the executable identified in the validation record.
+EA App is now a supported installation. Future changed builds still need to pass
+the native checks. Live-process inspection of the tested installation was blocked
+by Windows access permissions; the validation record keeps that limitation explicit.
+
 ## Services and modifications
-
-GeneralsOnline is a source-based fork using `GeneralsOnlineZH.exe`. Its FAQ says
-it coexists with the standard game without replacing it. Use the standard Steam
-game for this release. [GeneralsOnline](https://www.playgenerals.online/)
-
-Inspection of the installed files confirms `GeneralsOnlineZH.exe` is the launcher
-and `GeneralsOnlineZH_60.exe` is a different engine that fails the current native
-layout checks. The installed Easy Anti-Cheat configuration targets that engine.
-Its runtime interaction with the client has not been tested. Supporting it needs
-a separate engine integration; see the [investigation](GENERALS_ONLINE_INVESTIGATION.md).
 
 GenTool's own supported-game list does not establish compatibility with this
 client's native hooks. On 2026-09-27, the user confirmed Steam works with
@@ -58,7 +52,7 @@ gameplay. Normal attachment and feature-specific checks still apply.
 
 ## Troubleshooting
 
-- **Waiting:** start standard Zero Hour through Steam, not an alternative engine.
+- **Waiting:** start standard Zero Hour through Steam or the EA App.
 - **Layout rejection:** keep validation enabled; share the report/error. Engine
   changes require an adapter update, not an accepted-SHA edit.
 - **Access denied:** run the client as administrator if the game is elevated.
@@ -74,6 +68,6 @@ Steam verification may restore stock files without removing extra DLL/mod files.
 The client never uninstalls these tools automatically.
 
 Automated tests cover native callbacks, targeting, cooldowns, saves, protocol,
-options and launcher behaviour. Executable-backed checks use the local Steam
-build. This is not live coverage of every mission/storefront/mod. Permanent
+options and launcher behaviour. Executable-backed checks cover the inspected Steam
+and EA App builds. This is not live coverage of every mission/storefront/mod. Permanent
 Emergency Repair still needs live healing confirmation.

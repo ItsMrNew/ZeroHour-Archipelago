@@ -88,8 +88,12 @@ class LogQueue(logging.Handler):
 
     def emit(self, record):
         try:
+            colour = getattr(record, 'log_colour', None)
+            if (record.name == 'ZeroHour' and record.levelno >= logging.WARNING
+                    and 'Access denied to game process' in record.getMessage()):
+                colour = '#FA8072'
             self.messages.put_nowait((self.format(record), getattr(record, 'item_parts', None),
-                                     getattr(record, 'log_colour', None)))
+                                     colour))
         except queue.Full:
             pass
 
@@ -110,7 +114,7 @@ class ClientWindow:
         self.handler = LogQueue()
         logging.getLogger().addHandler(self.handler)
         logging.getLogger().setLevel(logging.INFO)
-        root.title(f'Zero Hour Archipelago {VERSION} - Steam edition')
+        root.title(f'Zero Hour Archipelago {VERSION} - Steam / EA App')
         root.geometry('850x540')
         root.minsize(640, 400)
         root.iconbitmap(default=str(icon_path()))

@@ -32,13 +32,17 @@ description: "Zero Hour: 30 checks, mission sets, all 12 builders and all three 
   starting_set_count: 1
 
   # Relative weights for all remaining non-trap slots (0 excludes an item).
-  # Defaults: Supply Drops and Reinforcements equally likely; other items excluded.
+  # Defaults: Supply Drops, Reinforcements and both boosts equally likely; reports excluded.
   # Traps enabled at 100% leave no weighted helpful items.
   mission_report_weight: 0
   # One-time $5,000; no increase to future starting cash.
   supply_drop_weight: 50
   # Three CIA Agents and a Heroic Humvee with five Heroic Missile Defenders.
   reinforcements_weight: 50
+  # 2x unit training for 120 seconds of control; research unchanged.
+  production_surge_weight: 50
+  # 2x dozer/worker construction for 120 seconds; extra copies extend duration.
+  construction_boost_weight: 50
   # Fixed count, 0-10: $5,000 now and at every fresh mission start.
   # Waits for player control; saved games do not grant another starting bonus.
   progressive_starting_cash: 0

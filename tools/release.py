@@ -15,7 +15,7 @@ from release_support import prepare_uploads, write_version_file
 sys.path.insert(0, str(ROOT))
 from zh.version import VERSION
 
-RELEASE_NAME = f"ZeroHour-Archipelago-{VERSION}-Steam"
+RELEASE_NAME = f"ZeroHour-Archipelago-{VERSION}-Windows"
 DIAGNOSTICS = ("Watch Game.cmd", "Inspect Dozer.cmd", "Inspect Builders.cmd",
                "Inspect Effects.cmd", "Inspect DeathLink.cmd", "Check Compatibility.cmd")
 
@@ -41,8 +41,7 @@ def main(archive_only=False):
         shutil.copyfile(ROOT / "assets/zero_hour_archipelago.ico", stage / "ZeroHourArchipelago.ico")
         shutil.copyfile(save_pack, stage / "Optional-Mission-Start-Saves.zip")
         shutil.copyfile(ROOT / "dist/generals_zh.apworld", stage / "generals_zh.apworld")
-        for name in ("Start Client.cmd", "Zero Hour Options.html"):
-            shutil.copyfile(ROOT / name, stage / name)
+        shutil.copyfile(ROOT / "Zero Hour Options.html", stage / "Zero Hour Options.html")
         shutil.copyfile(ROOT / "players/ZeroHour.yaml", stage / "ZeroHour.yaml")
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         readme = readme.split("## Source workspace", 1)[0]
@@ -51,7 +50,7 @@ def main(archive_only=False):
         readme = readme.replace("tools/diagnostics/", "Diagnostics/")
         (stage / "README.md").write_text(readme, encoding="utf-8")
         (stage / 'docs').mkdir()
-        for name in ('COMPATIBILITY.md', 'GENERALS_ONLINE_INVESTIGATION.md'):
+        for name in ('COMPATIBILITY.md', 'EA_APP_VALIDATION.md'):
             shutil.copyfile(ROOT / 'docs' / name, stage / 'docs' / name)
         for name in ('THIRD_PARTY_NOTICES.md', 'CHANGELOG.md'):
             shutil.copyfile(ROOT / name, stage / name)
@@ -65,7 +64,6 @@ def main(archive_only=False):
                        cwd=ROOT, check=True)
         for name in DIAGNOSTICS:
             content = (ROOT / "tools/diagnostics" / name).read_text(encoding="utf-8")
-            content = content.replace("%~dp0..\\..\\Start Client.cmd", "%~dp0..\\Start Client.cmd")
             (diagnostics / name).write_text(content, encoding="utf-8")
         licenses = stage / "licenses"
         licenses.mkdir()

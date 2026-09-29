@@ -1,6 +1,7 @@
 from .deathlink_options import DEFAULT_SELECTION, resolve as resolve_deathlink, selected_event, menu_labels as deathlink_menu_labels
 from .game_options import DEFAULTS, validate_options, goal_reached
 from .gameplay import input_enabled
+from .mission_data import BOOST_CONFIG
 from .notifications import ItemNotifications
 import asyncio
 import getpass
@@ -211,15 +212,17 @@ class ZeroHourClient:
         elif command == "Connected":
             data = packet.get("slot_data", {})
             protocol = data.get("protocol_version")
-            expected_goal = "all_selected_missions" if protocol in (4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17) else "all_campaign_missions"
-            if protocol not in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, PROTOCOL_VERSION) or data.get("goal") != expected_goal:
+            if protocol == 18 and data.get('boosts') != BOOST_CONFIG:
+                raise IncompatibleRoom('Unsupported production/construction boost configuration.')
+            expected_goal = "all_selected_missions" if protocol in (4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18) else "all_campaign_missions"
+            if protocol not in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, PROTOCOL_VERSION) or data.get("goal") != expected_goal:
                 raise IncompatibleRoom("This slot needs a compatible Zero Hour world package.")
             if protocol == 2 and data.get("unit_unlocks") != [DOZER_ITEM_NAME]:
                 raise IncompatibleRoom("This client supports only the USA Dozer test unlock.")
             if protocol in (3, 4, 5, 6, 7, 8, 9) and (data.get("unit_unlocks") != list(BUILDER_ITEMS.values())
                                   or data.get("builder_scope") != "all_stock_campaign_command_centers"):
                 raise IncompatibleRoom("This client requires the stock campaign builder unlock configuration.")
-            if protocol in (10, 11, 12, 13, 14, 15, 16, 17):
+            if protocol in (10, 11, 12, 13, 14, 15, 16, 17, 18):
                 if (type(data.get('general_builder_unlocks')) is not bool or data.get('builder_menu') is not True
                         or data.get('builder_scope') != 'campaign_and_challenge_command_centers'):
                     raise IncompatibleRoom('Unsupported Archipelago builder menu configuration.')
@@ -228,17 +231,17 @@ class ZeroHourClient:
                     raise IncompatibleRoom('Unsupported builder unlock list.')
             else:
                 expected_builders = BUILDER_ITEMS
-            if self.identity and (self.menu_mode != (protocol in (10, 11, 12, 13, 14, 15, 16, 17)) or self.builder_items != expected_builders):
+            if self.identity and (self.menu_mode != (protocol in (10, 11, 12, 13, 14, 15, 16, 17, 18)) or self.builder_items != expected_builders):
                 raise IncompatibleRoom('Builder configuration changed. Restart this client.')
-            if protocol in (5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17) and data.get("effects") != EFFECT_CONFIG:
+            if protocol in (5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18) and data.get("effects") != EFFECT_CONFIG:
                 raise IncompatibleRoom("Unsupported cash/power effect configuration.")
-            if protocol in (9, 10, 11, 12, 13, 14, 15, 16, 17) and data.get("consumables") != CONSUMABLE_CONFIG:
+            if protocol in (9, 10, 11, 12, 13, 14, 15, 16, 17, 18) and data.get("consumables") != CONSUMABLE_CONFIG:
                 raise IncompatibleRoom("Unsupported consumable item configuration.")
-            if protocol in (6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17) and type(data.get('death_link')) is not bool:
+            if protocol in (6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18) and type(data.get('death_link')) is not bool:
                 raise IncompatibleRoom('Missing or invalid DeathLink option.')
-            if protocol in (7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17) and data.get('death_link_mode') not in ('full_restart', 'quick_reset'):
+            if protocol in (7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18) and data.get('death_link_mode') not in ('full_restart', 'quick_reset'):
                 raise IncompatibleRoom('Missing or invalid DeathLink restart mode.')
-            if protocol in (12, 13, 14, 15, 16, 17) and data.get('sell_random_building') is not True:
+            if protocol in (12, 13, 14, 15, 16, 17, 18) and data.get('sell_random_building') is not True:
                 raise IncompatibleRoom('Unsupported Sell Random Building configuration.')
             sell_refund = data.get('sell_building_refund') if protocol >= 13 else 'normal_refund'
             if sell_refund not in ('normal_refund', 'no_refund') or (self.identity and self.sell_refund != sell_refund):
@@ -253,8 +256,8 @@ class ZeroHourClient:
                 raise IncompatibleRoom('Progressive Generals Powers changed. Restart this client.')
             self.generals_mode = generals_mode
             self.sell_refund = sell_refund
-            ability_names = data.get('ability_unlocks', []) if protocol in (11, 12, 13, 14, 15, 16, 17) else []
-            if protocol in (11, 12, 13, 14, 15, 16, 17) and (data.get('abilities') != (ABILITY_CONFIG if protocol >= 17 else PATRIOT_ABILITY_CONFIG if protocol >= 13 else LEGACY_ABILITY_CONFIG)
+            ability_names = data.get('ability_unlocks', []) if protocol in (11, 12, 13, 14, 15, 16, 17, 18) else []
+            if protocol in (11, 12, 13, 14, 15, 16, 17, 18) and (data.get('abilities') != (ABILITY_CONFIG if protocol >= 17 else PATRIOT_ABILITY_CONFIG if protocol >= 13 else LEGACY_ABILITY_CONFIG)
                     or not isinstance(ability_names, list) or any(name not in ABILITY_ITEMS.values() for name in ability_names)
                     or (protocol < 13 and 'Patriot Airdrop' in ability_names)
                     or (protocol < 17 and 'Emergency Repair' in ability_names)
@@ -274,13 +277,13 @@ class ZeroHourClient:
                 raise IncompatibleRoom('Mission/set check counts changed. Restart this client.')
             expected_locations = LOCATION_IDS
             missions = ()
-            if protocol in (4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17):
+            if protocol in (4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18):
                 try:
                     missions = select_missions(data["enabled_campaigns"], data["disable_unit_only_missions"], data["selected_challenges"])
-                    expected_locations = frozenset(m['id'] for m in (with_set_bonuses(missions, mission_checks, set_checks) if protocol in (8, 9, 10, 11, 12, 13, 14, 15, 16, 17) else missions))
+                    expected_locations = frozenset(m['id'] for m in (with_set_bonuses(missions, mission_checks, set_checks) if protocol in (8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18) else missions))
                 except (KeyError, TypeError, ValueError) as error:
                     raise IncompatibleRoom("Invalid selected campaign configuration.") from error
-            if protocol in (8, 9, 10, 11, 12, 13, 14, 15, 16, 17):
+            if protocol in (8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18):
                 unlocks = {key: MISSION_SETS[key]['item_id'] for key in selected_sets(missions)}
                 starting = data.get('starting_sets')
                 if (data.get('mission_set_unlocks') != unlocks
@@ -315,17 +318,17 @@ class ZeroHourClient:
             games = self.notifications.connected(packet, self.progress.notification_settings)
             if games:
                 await self.send(websocket, {'cmd': 'GetDataPackage', 'games': games})
-            self.sets_mode = protocol in (8, 9, 10, 11, 12, 13, 14, 15, 16, 17)
+            self.sets_mode = protocol in (8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18)
             self.selected_missions = missions
             self.mission_checks, self.set_checks = mission_checks, set_checks
             self.enabled_sets = data['mission_set_unlocks'] if self.sets_mode else {}
             self.dozer_mode = protocol == 2
-            self.menu_mode = protocol in (10, 11, 12, 13, 14, 15, 16, 17)
+            self.menu_mode = protocol in (10, 11, 12, 13, 14, 15, 16, 17, 18)
             self.builder_items = expected_builders
-            self.builder_mode = protocol in (3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17)
-            self.effects_mode = protocol in (5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17)
-            self.consumables_mode = protocol in (9, 10, 11, 12, 13, 14, 15, 16, 17)
-            mode = data['death_link_mode'] if protocol in (7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17) else 'full_restart'
+            self.builder_mode = protocol in (3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18)
+            self.effects_mode = protocol in (5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18)
+            self.consumables_mode = protocol in (9, 10, 11, 12, 13, 14, 15, 16, 17, 18)
+            mode = data['death_link_mode'] if protocol in (7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18) else 'full_restart'
             yaml_settings = (protocol >= 6 and data['death_link'], mode, self.game_options['death_link_grace_seconds'])
             if self.death_yaml is not None and yaml_settings[1:] != self.death_yaml[1:]:
                 raise IncompatibleRoom('DeathLink YAML settings changed. Restart the client for this room.')
@@ -339,7 +342,7 @@ class ZeroHourClient:
             self.complete_sets()
             self.connected = True
             LOG.info("Connected as %s. %d/%d checks confirmed by server.", self.slot, len(self.acknowledged), len(self.location_ids))
-            if protocol in (4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17):
+            if protocol in (4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18):
                 LOG.info("Story campaigns: %s. Unit-only missions excluded: %s.",
                          ", ".join(data["enabled_campaigns"]) or "none", data["disable_unit_only_missions"])
                 LOG.info("Selected Generals Challenge campaigns: %s.",
@@ -531,7 +534,7 @@ class ZeroHourClient:
                     if not game:
                         game = GameMemory.find()
                         if not game:
-                            status = "Waiting for the Steam Zero Hour game."
+                            status = "Waiting for Zero Hour (Steam or EA App)."
                             if status != last_status:
                                 LOG.info(status)
                                 last_status = status

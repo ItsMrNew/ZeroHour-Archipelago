@@ -31,10 +31,10 @@ assert.match(elements.yaml.textContent,/reinforcements_weight: 50/);
 assert.match(elements['trap-summary'].textContent,/0 traps and 12 non-trap filler slots/);
 elements['trap-enabled'].checked=true;context.update();
 assert.match(elements['trap-summary'].textContent,/6 traps and 6 non-trap filler slots/);
-assert.match(elements['filler-summary'].textContent,/Mission Report 0.0, Supply Drop 3.0, Reinforcements 3.0/);
+assert.match(elements['filler-summary'].textContent,/Mission Report 0.0, Supply Drop 1.5, Reinforcements 1.5, Production Surge 1.5, Construction Boost 1.5/);
 elements['trap-enabled'].checked=false;
 // Keep exercising the legacy report-only configuration as well as new defaults.
-elements['report-filler'].value='50';elements['supply-filler'].value=elements['reinforcement-filler'].value='0';context.update();
+elements['report-filler'].value='50';elements['production-filler'].value=elements['construction-filler'].value=elements['supply-filler'].value=elements['reinforcement-filler'].value='0';context.update();
 assert.match(elements.yaml.textContent,/usa_campaign: true/);
 assert.match(elements.yaml.textContent,/mission_completion_checks: 1/);
 assert.match(elements.yaml.textContent,/set_completion_checks: 5/);
@@ -332,3 +332,14 @@ elements['emergency-repair'].checked=false;context.update();
 assert.equal(elements.download.disabled,true);
 elements.unlock15.checked=false;context.update();assert.equal(elements.download.disabled,false);
 console.log('PASS: Emergency Repair toggle, starting unlock and live pool capacity.');
+
+for(const id of ['report-filler','supply-filler','reinforcement-filler'])elements[id].value='0';
+for(const [id,key] of [['production-filler','production_surge_weight'],['construction-filler','construction_boost_weight']]){
+ elements[id].value='50';context.update();
+ assert.equal(elements.download.disabled,false);
+ assert.match(elements.yaml.textContent,new RegExp(key+': 50'));
+ assert.match(elements[id+'-share'].textContent,/100/);
+ elements[id].value='0';context.update();
+ assert.equal(elements.download.disabled,true);
+}
+console.log('PASS: both boost weights independently enable filler generation and export YAML.');

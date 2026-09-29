@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from .dozer import GAME_LOGIC_RVA
 from .memory import MemoryReadError
 from .mission_data import ALL_BY_CAMPAIGN_MISSION, CASH_ITEM_ID, POWER_TRAP_ID
+from .mission_data import PRODUCTION_SURGE_ID, CONSTRUCTION_BOOST_ID
 from .power import PowerOutage
 from .gameplay import input_enabled
 from .consumables import CombatEffects
@@ -232,7 +233,7 @@ class PlayerEffects:
             messages.append(f'Power Outage Trap queued: {len(pending_traps) * self.options["power_outage_seconds"]} additional simulation seconds. Resume the game to apply the blackout.')
         if self.expanded and input_enabled(self.game) and not self.start_pending and not self.cash_deferred:
             pending_native = [(i, item.item) for i, item in enumerate(inventory.items)
-                if item.item in (REINFORCEMENTS_ID, PRODUCTION_SHUTDOWN_ID, SELL_BUILDING_ID)
+                if item.item in (REINFORCEMENTS_ID, PRODUCTION_SHUTDOWN_ID, SELL_BUILDING_ID, PRODUCTION_SURGE_ID, CONSTRUCTION_BOOST_ID)
                 and i not in self.progress.effect_receipts]
             if pending_native:
                 if self.power is None:
@@ -242,7 +243,9 @@ class PlayerEffects:
                     self.check_same(state)
                     operation, name = {REINFORCEMENTS_ID: (1, 'Reinforcements'),
                         PRODUCTION_SHUTDOWN_ID: (2, 'Production Shutdown'),
-                        SELL_BUILDING_ID: (5, 'Sell Random Building')}[item]
+                        SELL_BUILDING_ID: (5, 'Sell Random Building'),
+                        PRODUCTION_SURGE_ID: (8, 'Production Surge'),
+                        CONSTRUCTION_BOOST_ID: (9, 'Construction Boost')}[item]
                     self.configure_power()
                     self.power.prepare(state, 1, operation)
                     if operation == 5:

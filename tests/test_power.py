@@ -26,6 +26,9 @@ class Simulation:
         self.uc = Uc(UC_ARCH_X86, UC_MODE_32)
         self.uc.mem_map(self.base, 0x700000)
         self.uc.mem_map(self.code, 0x3000)
+        from zh import radar_outage
+        self.uc.mem_map(self.code + radar_outage.PAGE, 0x1000)
+        self.uc.mem_write(self.code + radar_outage.PAGE, radar_outage.page(self.base, self.code, self.mailbox))
         self.uc.mem_map(self.logic, 0x10000)
         self.uc.mem_write(self.code, build_stub(self.base, self.code, self.mailbox))
         # Stand-in at the exact native thiscall address; callback hook observes it.
@@ -148,7 +151,7 @@ def test_thunk_ignores_idle_completed_or_claimed_requests(status):
 def test_power_poll_and_cleanup_do_not_free_published_code():
     class Game:
         base = 0x400000
-        values = {0x20000: 0x50000, 0x60000: 1}
+        values = {0x20000: 0x50000, 0x60000: 1, 0x60A00: 0, 0xA39B00: 0}
         def pointer(self, address):
             return self.values[address]
         def replace_pointer(self, address, expected, value):
@@ -194,6 +197,11 @@ class InstallGame:
         self.put(self.manager + 12, 0x24000)
         self.store(self.manager + 16, b'\0')
         self.store(self.base + BROWNOUT_RVA, bytes.fromhex('8a 44 24 04 84 c0 56 57'))
+        from zh import radar_outage
+        self.store(self.base + radar_outage.NEW_MAP + 0x2A, bytes.fromhex('8d4e04898630130000'))
+        self.store(self.base + 0xF9A20 + 0x16, bytes.fromhex('8986d8010000'))
+        self.store(self.base + 0xF9A50 + 0x16, bytes.fromhex('8986e0010000'))
+        self.put(self.base + radar_outage.RADAR, 0)
     def store(self, address, data):
         self.mem.update({address+i: value for i, value in enumerate(data)})
     def put(self, address, value):
@@ -230,7 +238,8 @@ def test_install_clones_actual_class_table_and_restores_original(table_rva):
         assert game.pointer(power.table+i*4) == (power.region if i == 4 else game.pointer(game.original+i*4))
     assert game.pointer(power.mailbox) == 0
     assert game.pointer(power.mailbox+12) == 1800
-    assert game.protections == [(power.region, 4096, 0x20), (power.region+4096, 4096, 0x02)]
+    assert game.protections == [(power.region, 4096, 0x20), (power.region+4096, 4096, 0x02),
+                                (power.region+0x5000, 4096, 0x20)]
     power.arm()
     assert power.busy and game.pointer(power.mailbox) == 1
     power.close()

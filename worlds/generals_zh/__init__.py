@@ -7,7 +7,8 @@ from worlds.AutoWorld import WebWorld, World
 from .Options import StartingMissionSets, StartingSetCount, DeathLinkMode, MissionCompletionChecks, SetCompletionChecks
 from .Options import Reinforcements, SupplyDrops, TrapsEnabled, TrapPercentage, PowerOutageWeight, CashTheftWeight, ProductionShutdownWeight, SellRandomBuildingWeight
 from .trap_pool import make_filler_pool, TRAP_NAMES, FILLER_NAMES
-from .Options import MissionReportWeight, SupplyDropWeight, ReinforcementsWeight
+from .Options import MissionReportWeight, SupplyDropWeight, ReinforcementsWeight, ProductionSurgeWeight, ConstructionBoostWeight
+from .mission_data import BOOST_CONFIG
 from collections import Counter
 from .mission_data import CONSUMABLE_CONFIG, REINFORCEMENTS_ID, SUPPLY_DROP_ID, CASH_THEFT_ID, PRODUCTION_SHUTDOWN_ID, SELL_BUILDING_ID
 from .mission_data import MISSION_SETS, SET_ITEMS, ALL_CHECKS, with_set_bonuses, choose_starting_sets, selected_sets
@@ -32,7 +33,7 @@ class ZeroHourWeb(WebWorld):
                      OptionGroup("Check Counts", [MissionCompletionChecks, SetCompletionChecks]),
                      OptionGroup("Permanent Unlocks", [GeneralBuilderUnlocks, RevealMinimap, CarpetBomb, PatriotAirdrop, ProgressiveGeneralsPowers, GeneralsPointItems]),
                      OptionGroup("Helpful Items", [ProgressiveStartingCash]),
-                     OptionGroup("Useful Item Filler", [MissionReportWeight, SupplyDropWeight, ReinforcementsWeight]),
+                     OptionGroup("Useful Item Filler", [MissionReportWeight, SupplyDropWeight, ReinforcementsWeight, ProductionSurgeWeight, ConstructionBoostWeight]),
                      OptionGroup("Traps", [TrapsEnabled, TrapPercentage, PowerOutageWeight, CashTheftWeight, ProductionShutdownWeight, SellRandomBuildingWeight, SellBuildingRefund]),
                      OptionGroup("Starting Mission Sets", [StartingMissionSets, StartingSetCount]),
                      OptionGroup("Deathlink", [ZeroHourDeathLink, DeathLinkMode, DeathLinkGraceEnabled, DeathLinkGraceSeconds])]
@@ -119,7 +120,7 @@ class ZeroHourWorld(World):
         filler = make_filler_pool(remaining, bool(self.options.traps_enabled.value),
             self.options.trap_percentage.value, (self.options.power_outage_weight.value,
             self.options.cash_theft_weight.value, self.options.production_shutdown_weight.value, self.options.sell_random_building_weight.value), self.random,
-            (self.options.mission_report_weight.value, self.options.supply_drop_weight.value, self.options.reinforcements_weight.value))
+            (self.options.mission_report_weight.value, self.options.supply_drop_weight.value, self.options.reinforcements_weight.value, self.options.production_surge_weight.value, self.options.construction_boost_weight.value))
         self.filler_counts = Counter(filler)
         for name in sorted(self.starting_unlocks):
             self.multiworld.push_precollected(self.create_item(name))
@@ -152,7 +153,7 @@ class ZeroHourWorld(World):
             {m['id'] for m in self.selected_missions if state.has(MISSION_SETS[m['campaign']]['item_name'], self.player)})
 
     def fill_slot_data(self):
-        return {"protocol_version": PROTOCOL_VERSION, "goal": "all_selected_missions", "game_options": self.game_options,
+        return {"protocol_version": PROTOCOL_VERSION, "boosts": BOOST_CONFIG, "goal": "all_selected_missions", "game_options": self.game_options,
                 "unit_unlocks": list(self.builder_items.values()),
                 "builder_scope": "campaign_and_challenge_command_centers",
                 "builder_menu": True,

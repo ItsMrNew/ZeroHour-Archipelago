@@ -141,6 +141,8 @@ def build_restart_stub(base, code, mailbox, quick=False, gate=False):
 
 
 class MissionRestart(PowerOutage):
+    radar_outage_enabled = False
+    allocation_size = 0x3000
     layouts = {CLIENT_TABLE_RVA: CLIENT_TABLE}
     signature = (RESTART_RVA, bytes.fromhex('64 a1 00 00 00 00'))
 

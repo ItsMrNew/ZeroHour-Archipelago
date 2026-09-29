@@ -505,6 +505,7 @@ def build_menu_stub(base, code, mailbox):
 
 
 class UnlockMenu(PowerOutage):
+    radar_outage_enabled = False  # This hook owns UI controls, not gameplay effects.
     allocation_size = 0x5000  # code, vtable, then three writable control-data pages
     layouts = {TABLE_RVA: TABLE}
     signature = (0xFA2C0, bytes.fromhex(SIGNATURES[0xFA2C0]))

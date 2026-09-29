@@ -218,6 +218,30 @@ class ReinforcementsWeight(Range):
     default = 50
 
 
+class ProductionSurgeWeight(Range):
+    """Relative chance of Production Surge in filler slots left after traps.
+    Doubles your unit training speed for 120 seconds of player control. Extra copies
+    extend the duration; they do not increase speed further. Research is unaffected.
+    Waits for an active mission. Reset/load clears active boosts. Zero excludes it.
+    """
+    display_name = "Production Surge Filler Weight"
+    range_start = 0
+    range_end = 100
+    default = 50
+
+
+class ConstructionBoostWeight(Range):
+    """Relative chance of Construction Boost in filler slots left after traps.
+    Your dozers and workers construct buildings at twice normal speed for 120 seconds
+    of player control. Extra copies extend the duration. Normal builder and power
+    requirements still apply. Reset/load clears active boosts. Zero excludes it.
+    """
+    display_name = "Construction Boost Filler Weight"
+    range_start = 0
+    range_end = 100
+    default = 50
+
+
 class TrapPercentage(Range):
     """Percentage of remaining slots allocated to traps after unlocks, builders
     and Progressive Starting Cash items. Default 50 splits traps and weighted useful filler
@@ -485,6 +509,8 @@ class ZeroHourOptions(PerGameCommonOptions):
     mission_report_weight: MissionReportWeight
     supply_drop_weight: SupplyDropWeight
     reinforcements_weight: ReinforcementsWeight
+    production_surge_weight: ProductionSurgeWeight
+    construction_boost_weight: ConstructionBoostWeight
     cash_thefts: CashThefts
     production_shutdowns: ProductionShutdowns
     traps_enabled: TrapsEnabled

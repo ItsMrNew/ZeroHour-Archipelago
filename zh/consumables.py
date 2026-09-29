@@ -14,7 +14,7 @@ from .power import PowerOutage, build_stub, GAME_LOGIC_RVA, PLAYER_LIST_RVA
 from .compatibility import signature_bytes
 from .memory import MemoryReadError, CAMPAIGN_GLOBAL_RVA, windows_error
 from . import reinforcements as reinforcement
-from . import sell_building
+from . import sell_building, boosts
 
 PRODUCTION_TABLE_RVA = 0x550C58
 PRODUCTION_UPDATE_RVA = 0x1A0D50
@@ -43,11 +43,12 @@ NATIVE_SIGNATURES = (
     (PRODUCTION_UPDATE_RVA, '6aff6865509100'), (GET_OWNER_RVA, '8b89b0010000'),
     (ITERATE_RVA, '56578bf98b87a0010000'), (KINDOF_RVA, '8b4104'),
     (FIND_TEMPLATE_RVA, '6aff68ee419000'), (BUILD_RVA, '6aff68a9449000'),
-    (LEGAL_RVA, '558bec'), (ASCII_CTOR_RVA, '8b542404'), (ASCII_DTOR_RVA, '568bf18b06'))
+    (LEGAL_RVA, '558bec'), (ASCII_CTOR_RVA, '8b542404'), (ASCII_DTOR_RVA, '568bf18b06'), *boosts.SIGNATURES)
 
 
-def emit_maintenance(e, j, labels, out, base, mailbox):
+def emit_maintenance(e, j, labels, out, base, mailbox, code):
     """Retire timers at expiry, load, mission change, or frame rewind."""
+    e("b8", code + boosts.MAINTENANCE); e("ff d0")
     e('83 bf', TIMER); e('00')
     j('0f 84', 'maint_done')
     e('3b 0d', base + GAME_LOGIC_RVA)
@@ -72,6 +73,8 @@ def emit_maintenance(e, j, labels, out, base, mailbox):
 
 
 def emit_dispatch(e, j, labels, out, base, code, mailbox):
+    e('83 7f 1c 08'); j('0f84', 'boost')
+    e('83 7f 1c 09'); j('0f84', 'boost')
     e('83 7f 1c 00'); j('0f 84', 'power')
     e('83 7f 1c 05'); j('0f 84', 'sell')
     e('83 7f 1c 03'); j('0f 84', 'ability')
@@ -87,6 +90,9 @@ def emit_dispatch(e, j, labels, out, base, code, mailbox):
     e('8b 57 10 89 97', TIMER + 16)
     e('8b 57 14 89 97', TIMER + 20)
     e('89 47 18 c7 07', 2); j('e9', 'done')
+
+    labels['boost'] = len(out)
+    e('b8', code + boosts.DISPATCH); e('ff d0'); j('e9', 'done')
 
     from .reinforcements import emit_reinforcements
     emit_reinforcements(e, j, labels, out, base, mailbox)
@@ -141,6 +147,7 @@ def build_production_stub(base, code, mailbox):
     j('0f 85', 'original')
     e('61 9d b8 01 00 00 00 c3')                # UPDATE_SLEEP_NONE == 1
     labels['original'] = len(out)
+    e('8b 4c 24 18 b8', code - PRODUCTION_CODE_OFFSET + boosts.PRODUCTION_CODE); e('ff d0')
     e('61 9d e9', (base + PRODUCTION_UPDATE_RVA - (code + len(out) + 7)) & 0xFFFFFFFF)
     for pos, label in jumps: struct.pack_into('<i', out, pos, labels[label] - pos - 4)
     return bytes(out)
@@ -150,9 +157,11 @@ class CombatEffects(PowerOutage):
     def __init__(self, game, generals=False):
         super().__init__(game)
         self.generals = generals
-        self.allocation_size = 0x4000 if generals else 0x3000
+        self.allocation_size = 0x6000
         self.operation = 0
         self.production_hooked = False
+        self.construction_hooked = False
+        self.boosts_reported_active = set()
         self.shutdown_reported_active = False
         self.ability_result = None
 
@@ -164,10 +173,11 @@ class CombatEffects(PowerOutage):
         return main.ljust(PRODUCTION_CODE_OFFSET, b'\x90') + production
 
     def extra_pages(self, region, mailbox):
-        if not self.generals:
-            return {}
-        from .generals_points import build_points_stub
-        return {region + 0x3000: build_points_stub(self.game.base, mailbox)}
+        pages = {**super().extra_pages(region, mailbox), region + boosts.PAGE: boosts.page(self.game.base, mailbox)}
+        if self.generals:
+            from .generals_points import build_points_stub
+            pages[region + 0x3000] = build_points_stub(self.game.base, mailbox)
+        return pages
 
     def install(self, state):
         # Verify every new native entry point before publishing any callback.
@@ -179,10 +189,12 @@ class CombatEffects(PowerOutage):
                 raise MemoryReadError(f'Item callback signature mismatch at {rva:#x}.')
         super().install(state)
 
-    def _production_pointer(self, expected, value):
+    def _production_pointer(self, expected, value, construction=False):
         game = self.game
-        address = game.base + PRODUCTION_TABLE_RVA
-        if game.read(address, 8) != struct.pack('<II', expected, game.base + 0x1A0390):
+        address = game.base + boosts.DOZER_TABLE + 16 if construction else game.base + PRODUCTION_TABLE_RVA
+        valid = (game.pointer(address) == expected if construction else
+                 game.read(address, 8) == struct.pack('<II', expected, game.base + 0x1A0390))
+        if not valid:
             raise MemoryReadError('Production interface changed; restart Zero Hour before retrying.')
         handle = game.api.OpenProcess(0x1038, False, game.pid)
         if not handle:
@@ -208,12 +220,16 @@ class CombatEffects(PowerOutage):
             address = self.mailbox + sell_building.SEED
             self.game.replace_pointer(address, self.game.pointer(address), secrets.randbelow(0xFFFFFFFF) + 1)
             self.prepare_sale_refund('normal_refund')
-        if operation == 2:
-            duration = count * getattr(self, "production_seconds", 20) * 30
+        if operation in (2, 8, 9):
+            duration = count * (getattr(self, "production_seconds", 20) if operation == 2 else boosts.DURATION) * 30
             if duration > 0xFFFFFFFF:
                 raise MemoryReadError('Production shutdown duration overflow.')
             self.game.replace_pointer(self.mailbox + 12, self.game.pointer(self.mailbox + 12), duration)
-            if not self.production_hooked:
+            if operation == 9 and not self.construction_hooked:
+                self.construction_hooked = True
+                self._production_pointer(self.game.base + boosts.DOZER_UPDATE,
+                                         self.region + boosts.CONSTRUCTION_CODE, construction=True)
+            if operation in (2, 8) and not self.production_hooked:
                 self.production_hooked = True  # also tracks uncertain publication
                 self._production_pointer(self.game.base + PRODUCTION_UPDATE_RVA,
                                          self.region + PRODUCTION_CODE_OFFSET)
@@ -284,10 +300,17 @@ class CombatEffects(PowerOutage):
 
     def clear_transient(self):
         if self.mailbox:
-            address = self.mailbox + TIMER
-            self.game.replace_pointer(address, self.game.pointer(address), 0)
+            from . import radar_outage
+            for timer in (TIMER, boosts.PRODUCTION, boosts.CONSTRUCTION, radar_outage.TIMER):
+                address = self.mailbox + timer
+                self.game.replace_pointer(address, self.game.pointer(address), 0)
 
     def poll(self):
+        ended = [op for op in self.boosts_reported_active
+                 if not self.game.pointer(self.mailbox + (boosts.PRODUCTION if op == 8 else boosts.CONSTRUCTION))]
+        if ended:
+            self.boosts_reported_active.difference_update(ended)
+            return [('Production Surge' if op == 8 else 'Construction Boost') + ' ended or cleared by reset.' for op in ended]
         if self.mailbox and self.shutdown_reported_active and not self.game.pointer(self.mailbox + TIMER):
             self.shutdown_reported_active = False
             return ['Production Shutdown ended or cleared by reset; normal unit training restored.']
@@ -325,6 +348,10 @@ class CombatEffects(PowerOutage):
                     + '; cooldown restored.']
         if status != 2:
             raise MemoryReadError('Item request rejected after a transition or missing spawn anchor; reserved receipt will not replay.')
+        if self.operation in (8, 9):
+            self.boosts_reported_active.add(self.operation)
+            name = 'Production Surge' if self.operation == 8 else 'Construction Boost'
+            return [f'{name}: 2x speed for {boosts.DURATION} additional seconds of player control.']
         if self.operation == 1:
             counts = tuple(self.game.pointer(self.mailbox + offset) for offset in
                            (reinforcement.AGENT_COUNT, reinforcement.VEHICLE_COUNT, reinforcement.PASSENGER_COUNT))
@@ -338,6 +365,12 @@ class CombatEffects(PowerOutage):
 
     def close(self):
         self.clear_transient()
+        if self.construction_hooked:
+            address = self.game.base + boosts.DOZER_TABLE + 16
+            if self.game.pointer(address) == self.region + boosts.CONSTRUCTION_CODE:
+                self._production_pointer(self.region + boosts.CONSTRUCTION_CODE,
+                                         self.game.base + boosts.DOZER_UPDATE, construction=True)
+            self.construction_hooked = False
         if self.production_hooked:
             address = self.game.base + PRODUCTION_TABLE_RVA
             if self.game.pointer(address) == self.region + PRODUCTION_CODE_OFFSET:

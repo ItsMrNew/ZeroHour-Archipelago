@@ -1,6 +1,6 @@
 ---
-name: Steam launcher issue
-about: Report an issue with the supported Steam preview
+name: Launcher issue
+about: Report an issue with the supported Steam and EA App preview
 title: ''
 labels: ''
 assignees: ''
@@ -12,7 +12,7 @@ assignees: ''
 - Windows version:
 - Storefront and game language:
 - GenTool, GenPatcher, GeneralsOnline, mods or injected DLLs (and versions):
-- Does it reproduce on stock English Steam?
+- Does it reproduce on stock English Steam or EA App?
 
 ## What happened
 

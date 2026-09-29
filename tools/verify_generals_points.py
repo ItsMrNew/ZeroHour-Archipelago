@@ -122,7 +122,7 @@ def main(ap):
         from worlds.generals_zh.trap_pool import TRAP_NAMES
         assert sum(defaults.filler_counts[n] for n in TRAP_NAMES)==6
         assert defaults.filler_counts['Mission Report']==0
-        assert defaults.filler_counts['Supply Drop']+defaults.filler_counts['Reinforcements']==6
+        assert sum(defaults.filler_counts[n] for n in ('Supply Drop','Reinforcements','Production Surge','Construction Boost'))==6
         for repair, starting in ((True, []), (True, ['Emergency Repair']), (False, [])):
             mw, w = make(False, 18, challenges=0, emergency_repair=repair, starting_abilities=starting)
             counts = Counter(i.name for i in mw.itempool)
@@ -151,6 +151,16 @@ def main(ap):
             assert all(w.create_item(name).classification==ItemClassification.filler
                        for name in ('Mission Report','Supply Drop','Reinforcements'))
             asyncio.run(negotiate(w,False,Path(directory)/f'filler-{percentage}'))
+        # Either boost can fill the complete non-trap allocation by itself.
+        for key, name in (('production_surge_weight','Production Surge'),('construction_boost_weight','Construction Boost')):
+            weights=dict(mission_report_weight=0,supply_drop_weight=0,reinforcements_weight=0,
+                         production_surge_weight=0,construction_boost_weight=0)
+            weights[key]=50
+            mw,w=make(False,18,challenges=0,**weights)
+            assert w.filler_counts=={name:12}
+            assert w.create_item(name).classification==ItemClassification.filler
+            assert w.fill_slot_data()['boosts']['duration_seconds']==120
+            asyncio.run(negotiate(w,False,Path(directory)/key))
         from worlds.generals_zh.Options import ZeroHourOptions, Reinforcements, SupplyDrops
         from Options import Visibility
         assert 'progress_tracker' not in ZeroHourOptions.type_hints

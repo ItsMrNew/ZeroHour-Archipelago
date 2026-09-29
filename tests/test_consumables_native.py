@@ -28,6 +28,8 @@ class CombatSimulation(Simulation):
         self.legal = True
         super().__init__()
         self.uc.mem_map(0x2300000, 0x20000)
+        self.uc.mem_map(self.code + c.boosts.PAGE, 0x1000)
+        self.uc.mem_write(self.code + c.boosts.PAGE, c.boosts.page(self.base, self.mailbox))
         self.put(self.player + 0x160, self.player + 0x400)
         self.uc.mem_write(self.mailbox + r.NAMES, b''.join(n.encode().ljust(48, b'\0') for n in r.RECIPE))
         self.uc.mem_write(self.code, build_stub(self.base, self.code, self.mailbox, True))

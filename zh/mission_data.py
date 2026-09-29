@@ -1,7 +1,7 @@
 """Shared, stable mission and builder item IDs."""
 
 GAME = "Command & Conquer: Generals - Zero Hour"
-PROTOCOL_VERSION = 17
+PROTOCOL_VERSION = 18
 BASE_ID = 0x5A4800
 REVEAL_MINIMAP_ID = BASE_ID + 0x130
 CARPET_BOMB_ID = BASE_ID + 0x131
@@ -57,7 +57,12 @@ SELL_BUILDING_ID = BASE_ID + 0x116
 CONSUMABLE_ITEMS = {REINFORCEMENTS_ID: "Reinforcements", SUPPLY_DROP_ID: "Supply Drop",
                     CASH_THEFT_ID: "Cash Theft", PRODUCTION_SHUTDOWN_ID: "Production Shutdown",
                     SELL_BUILDING_ID: "Sell Random Building"}
+PRODUCTION_SURGE_ID = BASE_ID + 0x117
+CONSTRUCTION_BOOST_ID = BASE_ID + 0x118
+BOOST_ITEMS = {PRODUCTION_SURGE_ID: "Production Surge", CONSTRUCTION_BOOST_ID: "Construction Boost"}
+BOOST_CONFIG = {"duration_seconds": 120, "speed_multiplier": 2, "stacking": "extend_duration"}
 EFFECT_ITEMS.update(CONSUMABLE_ITEMS)
+EFFECT_ITEMS.update(BOOST_ITEMS)
 # Retain the legacy wire configuration so existing rooms remain compatible.
 # Client 0.13.2 expands the three infantry to a fixed CIA/Humvee squad; the
 # native recipe lives in zh.reinforcements, not in these protocol markers.

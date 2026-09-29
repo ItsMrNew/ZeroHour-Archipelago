@@ -50,9 +50,9 @@ def test_impossible_helpful_item_budget_is_not_hidden_by_traps():
 
 
 @pytest.mark.parametrize('percentage', [0, 25, 50, 100])
-@pytest.mark.parametrize('selected', range(3))
+@pytest.mark.parametrize('selected', range(5))
 def test_weighted_filler_exclusion_exact_size_and_trap_priority(percentage, selected):
-    weights=[0,0,0]; weights[selected]=50
+    weights=[0]*5; weights[selected]=50
     pool=make_filler_pool(17, True, percentage, [50]*4, Random(2), weights)
     traps=17*percentage//100
     assert len(pool)==17

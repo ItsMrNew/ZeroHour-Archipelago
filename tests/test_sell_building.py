@@ -21,6 +21,8 @@ class SaleSimulation(Simulation):
         self.objects = {}
         super().__init__()
         self.uc.mem_map(0x2300000, 0x10000)
+        self.uc.mem_map(self.code + c.boosts.PAGE, 0x1000)
+        self.uc.mem_write(self.code + c.boosts.PAGE, c.boosts.page(self.base, self.mailbox))
         self.uc.mem_write(self.code, build_stub(self.base, self.code, self.mailbox, True))
         self.put(self.player + 0x38, 20000)
         self.put(self.mailbox + 28, 5)

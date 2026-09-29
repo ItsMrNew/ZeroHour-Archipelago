@@ -1,4 +1,4 @@
-"""Win32 adapter for the supported Steam executable family.
+"""Win32 adapter for the supported Steam and EA App executable family.
 
 Reads by default. Effect adapters request checked writes. The power adapter can
 allocate a game-thread callback thunk and replace a private instance vtable.
@@ -32,7 +32,7 @@ def windows_error(action, pid, code):
     if code == 5:
         return MemoryReadError(
             f"Access denied to game process {pid}. Close this client, then right-click "
-            "Start Client.cmd (or ZeroHourClient.exe) and choose Run as administrator. "
+            "ZeroHourClient.exe and choose Run as administrator. "
             "The client needs permission to read the elevated game."
         )
     return MemoryReadError(f"Cannot {action} process {pid} (Windows error {code}).")
@@ -123,7 +123,7 @@ class GameMemory:
                         continue
                     raise UnsupportedGame(
                         f"Cannot verify {path.name} compatibility: {error} No game memory was changed. "
-                        "This release supports stock English Steam Zero Hour. EA App, Origin, First Decade "
+                        "This release supports stock English Steam and EA App Zero Hour. Origin, First Decade "
                         "and replacement engines are not validated. Use --check-executable with Game.dat "
                         "to produce a read-only compatibility report."
                     ) from error
@@ -193,7 +193,7 @@ class GameMemory:
         if not manager:
             return Snapshot()
         if self.pointer(manager) != self.base + CAMPAIGN_VTABLE_RVA:
-            raise MemoryReadError("Campaign manager layout does not match the supported Steam build.")
+            raise MemoryReadError("Campaign manager layout does not match the supported game layout.")
         raw = self.read(manager + 8, 9)
         campaign, mission, victorious = struct.unpack("<IIB", raw)
         if victorious not in (0, 1):

@@ -6,10 +6,10 @@ labels: ''
 assignees: ''
 ---
 
-Only stock English Steam is supported in 0.8.0. This collects evidence for future
+Stock English Steam and EA App installations are supported. This collects evidence for future
 work; it does not enable support or bypass native validation.
 
-- Storefront (EA App / Origin / First Decade / other):
+- Storefront (Origin / First Decade / other):
 - Game language/version:
 - Services, patches, tools and versions:
 - Executable name:
