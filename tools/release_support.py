@@ -7,7 +7,7 @@ import zipfile
 
 SOURCE_FILES = ('.gitignore', 'README.md', 'CHANGELOG.md', 'THIRD_PARTY_NOTICES.md',
                 'requirements.txt', 'requirements-dev.txt', 'ZeroHourClient.py',
-                'ZeroHourConsole.py', 'CheckMissionDifficulty.py',
+                'ZeroHourConsole.py', 'tools/diagnostics/CheckMissionDifficulty.py',
                 'Zero Hour Options.html',
                 'players/ZeroHour.yaml', 'assets/zero_hour_archipelago.ico',
                 'assets/zero_hour_archipelago.png', 'assets/licenses/Tcl-license.terms',
@@ -36,7 +36,7 @@ def write_version_file(path, version):
     numbers = tuple(int(part) for part in version.split('.'))
     if len(numbers) != 3 or any(not 0 <= n <= 65535 for n in numbers):
         raise ValueError('Expected a three-part Windows release version')
-    fields = dict(FileDescription='Zero Hour Archipelago - Steam and EA App preview',
+    fields = dict(FileDescription='Zero Hour Archipelago - Steam and EA App',
                   FileVersion=version, ProductName='Zero Hour Archipelago',
                   ProductVersion=version)
     text = ('VSVersionInfo(ffi=FixedFileInfo(filevers=' + repr(numbers + (0,))

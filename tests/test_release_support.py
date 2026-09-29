@@ -8,6 +8,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
 from release_support import SOURCE_FILES, source_files, prepare_uploads, write_version_file
 from zh.compatibility_report import executable_report
+from zh.version import VERSION
 
 
 def test_report_rejects_bad_files_and_preserves_hash_without_private_path(tmp_path):
@@ -48,7 +49,7 @@ def test_source_and_upload_packages_exclude_private_generated_files(tmp_path):
     for name in SOURCE_FILES:
         path = tmp_path / name; path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text('source fixture')
-    for name in ('docs/releases/0.8.0.md', 'zh/version.py', 'tests/test_public.py'):
+    for name in (f'docs/releases/{VERSION}.md', 'zh/version.py', 'tests/test_public.py'):
         path = tmp_path / name; path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text('source fixture')
     private = ('.env', '.codex-remote-attachments/screenshot.png', '.research/Game.dat',
@@ -62,8 +63,8 @@ def test_source_and_upload_packages_exclude_private_generated_files(tmp_path):
     assert 'zh/version.py' in selected and 'players/ZeroHour.yaml' in selected
     player = tmp_path / 'dist/Player.zip'; player.write_bytes(b'player fixture')
     (tmp_path / 'dist/generals_zh.apworld').write_bytes(b'world fixture')
-    uploads = prepare_uploads(tmp_path, '0.8.0', player)
-    with ZipFile(uploads / 'ZeroHour-Archipelago-0.8.0-Source.zip') as archive:
+    uploads = prepare_uploads(tmp_path, VERSION, player)
+    with ZipFile(uploads / f'ZeroHour-Archipelago-{VERSION}-Source.zip') as archive:
         assert archive.testzip() is None
         assert {n.split('/', 1)[1] for n in archive.namelist()} == selected
     for line in (uploads / 'SHA256SUMS.txt').read_text().splitlines():
@@ -74,7 +75,8 @@ def test_source_and_upload_packages_exclude_private_generated_files(tmp_path):
 def test_windows_version_metadata(tmp_path):
     from PyInstaller.utils.win32.versioninfo import load_version_info_from_text_file
     path = tmp_path / 'version.txt'
-    write_version_file(path, '0.8.0')
+    write_version_file(path, VERSION)
     info = load_version_info_from_text_file(str(path))
-    assert info.ffi.fileVersionMS == 8
-    assert info.ffi.fileVersionLS == 0
+    major, minor, patch = map(int, VERSION.split('.'))
+    assert info.ffi.fileVersionMS == (major << 16) | minor
+    assert info.ffi.fileVersionLS == patch << 16

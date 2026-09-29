@@ -29,6 +29,10 @@ For generation/handshake validation using an Archipelago 0.6.7 source checkout:
 - `players/ZeroHour.yaml`: single supported example.
 - `assets/`: current transparent artwork and multi-resolution icon.
 - `tests/`, `tools/`, `docs/`: tests, builders/diagnostics, documentation.
+- `tools/diagnostics/`: diagnostic shortcuts and the read-only mission difficulty
+  checker. Run `Check Mission Difficulty.cmd`, or use
+  `.venv/Scripts/python.exe tools/diagnostics/CheckMissionDifficulty.py --once`
+  from the repository root after loading a mission.
 - `dist/`, `build/`, `.research/`, `.cleanup-archive/`: ignored generated/local
   material. Screenshots and `.codex-remote-attachments/` are also excluded.
 

@@ -1,6 +1,6 @@
 ---
 name: Launcher issue
-about: Report an issue with the supported Steam and EA App preview
+about: Report an issue with the supported Steam and EA App release
 title: ''
 labels: ''
 assignees: ''

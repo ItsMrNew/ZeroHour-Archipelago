@@ -1,5 +1,8 @@
 # Changelog
 
+The current release is **0.8.4**. Older version headings below are development
+history, not the version of the current client or additional required downloads.
+
 ## 0.8.4 - Timed helpful filler
 
 - Promoted the packaged Archipelago Launcher client to the regular **Zero Hour
