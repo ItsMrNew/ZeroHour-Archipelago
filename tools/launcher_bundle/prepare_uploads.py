@@ -21,7 +21,8 @@ def main():
         f"ZeroHour-Archipelago-{version}-Windows.zip": ROOT / "dist" / f"ZeroHour-Archipelago-{version}-Windows.zip",
         "generals_zh.apworld": launcher / "generals_zh.apworld",
         "README.md": ROOT / "README.md",
-        "Zero Hour Options.html": launcher / "Zero Hour Options.html",
+        # GitHub replaces spaces in uploaded asset names with dots.
+        "Zero.Hour.Options.html": launcher / "Zero Hour Options.html",
         "ZeroHour.yaml": launcher / "ZeroHour.yaml",
         "Optional-Mission-Start-Saves.zip": launcher / "Optional-Mission-Start-Saves.zip",
     }
